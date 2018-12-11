@@ -21,6 +21,6 @@
 
     En graphique :
 
-    ![ip gui](./ip_gui.png)
-    
-    <img srv="./ip_gui.png>
+    ![ip gui](CCNA/ip_gui.png)
+
+    <img srv="./ip_gui.png">
