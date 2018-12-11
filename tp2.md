@@ -21,5 +21,5 @@
 
     En graphique :
 
-    ![](ip_gui.png)
+    ![ip gui](./ip_gui.png)
     <img srv="./ip_gui.png>
