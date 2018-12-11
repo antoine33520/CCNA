@@ -1,8 +1,8 @@
-#TP 2
+# TP 2
 
-#I.
+# I.
 
-#1
+# 1
 
     En ligne de commande :
 
