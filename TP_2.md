@@ -77,24 +77,21 @@ Utilisez l'interface graphique de votre OS pour **changer d'adresse IP** :
 **Binaire** : 00001010.00100001.00000000.11011010
 **Sous-réseau** : 11111111.11111111.11111100.00000000
 **Adresse network** : 10.33.0.0
-**Adresse Broadcast** : 10.33.3.255    
+**Adresse Broadcast** : 10.33.3.255
 
-
-• 	Changez l'adresse IP de votre carte WiFi sur Windows pour une autre (mais toujours dans le même réseau)   
+• Changez l'adresse IP de votre carte WiFi sur Windows pour une autre (mais toujours dans le même réseau)
 
 ```
-	> Panneau de configuration
-	> Réseau et Internet
-	> Centre Réseau et partage
-	> Connexions : Wi-Fi (Nom_Du_Wifi)
-	> Propriétés
-	> Protocole Internet Version 4 (TCP/IPV4)
-	> Propritétés
-	> Utiliser l’adresse IP suivante :
+    > Panneau de configuration
+    > Réseau et Internet
+    > Centre Réseau et partage
+    > Connexions : Wi-Fi (Nom_Du_Wifi)
+    > Propriétés
+    > Protocole Internet Version 4 (TCP/IPV4)
+    > Propritétés
+    > Utiliser l’adresse IP suivante :
 ```
-![](https://github.com/antoine33520/CCNA/blob/master/TP2/changement-ip-windows.png?raw=true "Champ de saisie des paramètres réseau")
-
-
+![](<https://github.com/antoine33520/CCNA/blob/master/TP2/changement-ip-windows.png?raw=true> "Champ de saisie des paramètres réseau")
 
 Antoine a choisi l'adresse 10.33.3.241 au hasard en respectant la plage d'ip utilisable sur le réseau d'Ynov:
 Adresse Réseau : 10.33.0.0
@@ -112,13 +109,13 @@ Par chance l'IP choisie par Antoine à la question précédente était visibleme
 
 En utilisant une machine virtuelle Ubuntu sur hyper-v, une version modifiée de linux avec WSL de Windows et PowerShell
 
-![](https://github.com/antoine33520/CCNA/blob/master/TP2/resultatnmap.png?raw=true?raw=true "Résultats nmap avec différents sytèmes")
+!["Résultats nmap avec différents sytèmes"](<https://github.com/antoine33520/CCNA/blob/master/TP2/resultatnmap.png?raw=true?raw=true> )
 
 ### C. Modification d'adresse IP - pt. 2
 
 •	Modifiez de nouveau votre adresse IP vers une adresse IP que vous savez libre grâce à **nmap**
 
-![](https://github.com/antoine33520/CCNA/blob/master/TP2/reseau_nmap.png?raw=true "Plusieurs résultats avec un nmap ayant fonctionné")
+!["Plusieurs résultats avec un nmap ayant fonctionné"](https://github.com/antoine33520/CCNA/blob/master/TP2/reseau_nmap.png?raw=true )
 
 Grace à **nmap** on trouve une plage de 10 adresses IP libre.
 
@@ -127,8 +124,7 @@ Grace à **nmap** on trouve une plage de 10 adresses IP libre.
 ## II. EXPLORATION LOCAL EN DUO
 
 ### Avec 3 PCs:
-Il nous manque les screens et le code utilisé lors de nôtre TP avec 3 PCs avec des hyperviseurs (logiciel permettant la virtualisation de machines) différents : Virtualbox, VMware workstation et Hyper-V contenant chacun une machine virtuelle Ubuntu.
-
+Il nous manque les screens et le code utilisé lors de nôtre TP avec 3 PCs avec des hyperviseurs (logiciel permettant la virtualisation de machines) différents : Virtualbox, VMware workstation et Hyper-V contenant chacun une machine virtuelle Ubuntu. 
 * Les VMs étaient en accès par pont au port RJ45 de chaque PC
 * Chaque PC était relié au switch via un câble réseau
 * Un des PCs était également connecté au Wifi d'Ynov qui donnait cet accès à sa VM via une carte virtuelle faisant un pont entre la carte réseau Wifi et la Vm afin de partager l'accès à Internet
@@ -157,3 +153,49 @@ The document has moved
 
 ### 6. Wireshark
 
+Voici des screens de wireshark lors de plusieurs utilisations du réseau:
+
+####     Pendant un ping:
+![](https://github.com/antoine33520/CCNA/blob/master/TP2/ping.png?raw=true)
+
+####     Pendant un netcat:
+
+![](https://github.com/antoine33520/CCNA/blob/master/TP2/wireshark_ncat.png?raw=true)
+
+####     Pendant que le PC1 sert du PC2 comme gateway (lors de l'ouverture du site de Wireshark):
+
+![](https://github.com/antoine33520/CCNA/blob/master/TP2/pcgateway.png?raw=true)
+
+
+
+
+
+
+
+
+## III. Manipulations d'autres outils/protocoles côté client
+
+### 1. DHCP
+
+• Afficher l'adresse IP du serveur DHCP du réseau WiFi : 
+
+#### Avec Windows : 
+
+```	
+•     Win + R
+•     Cmd
+•     Ipconfig -all
+
+```
+
+Ce qui nous donne l'adresse DHCP suivante 
+
+![](https://github.com/antoine33520/CCNA/blob/master/TP2/adresseDHCP.png?raw=true)
+
+• Trouver la date d'expiration de votre bail DHCP : 
+
+On utilise les mêmes lignes de commande que précédemment pour trouver la date d'expiration du bail. On trouve ainsi : 
+
+![](https://github.com/antoine33520/CCNA/blob/master/TP2/bail.png?raw=true)
+
+• Demandez une nouvelle adresse IP (en ligne de commande):
