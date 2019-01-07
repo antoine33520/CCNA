@@ -127,7 +127,8 @@ Grace à **nmap** on trouve une plage de 10 adresses IP libre.
 ## II. EXPLORATION LOCAL EN DUO
 
 ### Avec 3 PCs:
-Il nous manque les screens et le code utilisé lors de nôtre TP avec 3 PCs avec des hyperviseurs (logiciel permettant la virtualisation de machines) différents : Virtualbox, VMware workstation et Hyper-V contenant chacun une machine virtuelle Ubuntu. 
+Il nous manque les screens et le code utilisé lors de nôtre TP avec 3 PCs avec des hyperviseurs (logiciel permettant la virtualisation de machines) différents : Virtualbox, VMware workstation et Hyper-V contenant chacun une machine virtuelle Ubuntu.
+
 * Les VMs étaient en accès par pont au port RJ45 de chaque PC
 * Chaque PC était relié au switch via un câble réseau
 * Un des PCs était également connecté au Wifi d'Ynov qui donnait cet accès à sa VM via une carte virtuelle faisant un pont entre la carte réseau Wifi et la Vm afin de partager l'accès à Internet
