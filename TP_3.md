@@ -8,7 +8,7 @@ Pour cela on peut utiliser plusieurs commandes différentes dont "dig" et "curl"
 
 ```bash
 
-\[root@centos /\]\# curl google.fr && dig google.fr
+[root@centos /]# curl google.fr && dig google.fr
 
 <HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
 
@@ -89,7 +89,7 @@ d.ext.nic.fr. 0 IN AAAA 2001:500:2e::2
 ##### VM vers Windows
 
 ```bash
-[root@centos /]\# ping -c 5 192.168.127.1
+[root@centos /]# ping -c 5 192.168.127.1
 PING 192.168.127.1 (192.168.127.1) 56(84) bytes of data.
 64 bytes from 192.168.127.1: icmp_seq=1 ttl=128 time=0.522 ms
 64 bytes from 192.168.127.1: icmp_seq=2 ttl=128 time=0.495 ms
@@ -104,14 +104,14 @@ PING 192.168.127.1 (192.168.127.1) 56(84) bytes of data.
 
 PS C:\Users\contact> ping 192.168.127.10
 
-Envoi d’une requête 'Ping'  192.168.127.10 avec 32 octets de données :
-Réponse de 192.168.127.10 : octets=32 temps<1ms TTL=64
-Réponse de 192.168.127.10 : octets=32 temps<1ms TTL=64
-Réponse de 192.168.127.10 : octets=32 temps<1ms TTL=64
-Réponse de 192.168.127.10 : octets=32 temps<1ms TTL=64
+Envoi d’une requête 'Ping'  192.168.127.10 avec 32 octets de données:
+Réponse de 192.168.127.10: octets=32 temps<1ms TTL=64
+Réponse de 192.168.127.10: octets=32 temps<1ms TTL=64
+Réponse de 192.168.127.10: octets=32 temps<1ms TTL=64
+Réponse de 192.168.127.10: octets=32 temps<1ms TTL=64
 
 Statistiques Ping pour 192.168.127.10:
-    Paquets : envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
+    Paquets: envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
 Durée approximative des boucles en millisecondes :
     Minimum = 0ms, Maximum = 0ms, Moyenne = 0ms
 
@@ -121,7 +121,7 @@ Durée approximative des boucles en millisecondes :
 
 ```bash
 [root@centos /]# ip route
-default via 10.0.2.2 dev enp0s3 proto dhcp metric 101 
+default via 10.0.2.2 dev enp0s3 proto dhcp metric 101
 10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15 metric 101
 192.168.127.0/24 dev enp0s8 proto kernel scope link src 192.168.127.10 metric 100
 ```
@@ -135,7 +135,7 @@ default via 10.0.2.2 dev enp0s3 proto dhcp metric 100
 _Cette ligne définie la carte réseau permettant d'accéder au réseaux auquels la machine n'est pas directement connectés, la carte qui renvoit à la passerelle. Ici "dhcp" signifie que la passerelle utilisé est celle donnée automatiquement par le serveur dhcp._
 
 ```bash
-10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15 metric 101 
+10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15 metric 101
 ```
 
 _Cette ligne elle indique à la machine que pour accéder à ce précis (ici 10.0.2.0/24) il faut utiliser le lien (carte réseau physique, carte réseau virtuelle ou autre dans certains cas) ayant telle adresse IP (ici 10.0.2.15)._
@@ -151,14 +151,14 @@ _Là il s'agit de la même chose que la ligne précedente mais pour le réseau 1
 ```powershell
 PS C:\Users\mathc> ping 192.168.127.10
 
-Envoi d’une requête 'Ping'  192.168.127.10 avec 32 octets de données :
-Réponse de 192.168.127.10 : octets=32 temps<1ms TTL=64
-Réponse de 192.168.127.10 : octets=32 temps<1ms TTL=64
-Réponse de 192.168.127.10 : octets=32 temps<1ms TTL=64
-Réponse de 192.168.127.10 : octets=32 temps<1ms TTL=64
+Envoi d’une requête 'Ping'  192.168.127.10 avec 32 octets de données:
+Réponse de 192.168.127.10: octets=32 temps<1ms TTL=64
+Réponse de 192.168.127.10: octets=32 temps<1ms TTL=64
+Réponse de 192.168.127.10: octets=32 temps<1ms TTL=64
+Réponse de 192.168.127.10: octets=32 temps<1ms TTL=64
 
 Statistiques Ping pour 192.168.127.10:
-    Paquets : envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
+    Paquets : envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
 Durée approximative des boucles en millisecondes :
     Minimum = 0ms, Maximum = 0ms, Moyenne = 0ms
 ```
@@ -166,7 +166,7 @@ Durée approximative des boucles en millisecondes :
 #### Et ci-dessous une requête "ping" de la VM vers l'hôte
 
 ```bash
-[root@centos /]\# ping -c 5 192.168.127.1
+[root@centos /]# ping -c 5 192.168.127.1
 PING 192.168.127.1 (192.168.127.1) 56(84) bytes of data.
 64 bytes from 192.168.127.1: icmp_seq=1 ttl=128 time=0.522 ms
 64 bytes from 192.168.127.1: icmp_seq=2 ttl=128 time=0.495 ms
@@ -191,7 +191,7 @@ Liste d'Interfaces
 
 IPv4 Table de routage
 ===========================================================================
-Itinéraires actifs :
+Itinéraires actifs :
 Destination réseau    Masque réseau  Adr. passerelle   Adr. interface Métrique
           0.0.0.0          0.0.0.0      10.33.3.253      10.33.1.191     35
         10.33.0.0    255.255.252.0         On-link       10.33.1.191    291
@@ -210,7 +210,7 @@ Destination réseau    Masque réseau  Adr. passerelle   Adr. interface Métriqu
   255.255.255.255  255.255.255.255         On-link       10.33.1.191    291
   255.255.255.255  255.255.255.255         On-link     192.168.127.1    330
 ===========================================================================
-Itinéraires persistants :
+Itinéraires persistants :
   Aucun
 ```
 
@@ -223,11 +223,55 @@ Résolution de github.com (github.com)... 140.82.118.3, 140.82.118.4, 192.5.6.30
 Connexion vers github.com (github.com)|140.82.118.3|:443...connecté.
 requête HTTP transmise, en attente de la réponse...200 OK
 Longueur: non spécifié [text/html]
-Sauvegarde en : «README.md»
+Sauvegarde en : "README.md"
 
-    [ <=>                                                                                                 ] 54 302      --.-K/s   ds 0,1s   
+    [ <=>                                                                                                 ] 54 302      --.-K/s   ds 0,1s
 
-2019-01-08 17:47:37 (380 KB/s) - «README.md» sauvegardé [54302]
+2019-01-08 17:47:37 (380 KB/s) - "README.md" sauvegardé [54302]
 ```
 
 #### Utilisation de la commande "dig"
+
+La commande "dig" permet d'obtenir les
+
+```bash
+[root@centos antoinethys]# dig ynov.com && dig google.com
+
+; <<>> DiG 9.9.4-RedHat-9.9.4-72.el7 <<>> ynov.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 37738
+;; flags: qr rd ad; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+;; WARNING: recursion requested but not available
+
+;; QUESTION SECTION:
+;ynov.com.                      IN      A
+
+;; ANSWER SECTION:
+ynov.com.               0       IN      A       217.70.184.38
+
+;; Query time: 2 msec
+;; SERVER: 172.17.190.33#53(172.17.190.33)
+;; WHEN: mar. janv. 08 21:03:19 CET 2019
+;; MSG SIZE  rcvd: 50
+
+
+; <<>> DiG 9.9.4-RedHat-9.9.4-72.el7 <<>> google.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 7793
+;; flags: qr rd ad; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+;; WARNING: recursion requested but not available
+
+;; QUESTION SECTION:
+;google.com.                    IN      A
+
+;; ANSWER SECTION:
+google.com.             0       IN      A       216.58.204.238
+
+;; Query time: 1 msec
+;; SERVER: 172.17.190.33#53(172.17.190.33)
+;; WHEN: mar. janv. 08 21:03:19 CET 2019
+;; MSG SIZE  rcvd: 54
+
+```
