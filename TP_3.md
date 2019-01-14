@@ -275,3 +275,68 @@ google.com.             0       IN      A       216.58.204.238
 ;; MSG SIZE  rcvd: 54
 
 ```
+
+## Exploration des ports locaux
+
+  Commande SS:
+* Ports TCP IPv4 en écoute:
+
+```bash
+[root@centos ~]# ss -l -t -4
+State      Recv-Q Send-Q                        Local Address:Port                                         Peer Address:Port
+LISTEN     0      128                                       *:ssh                                                     *:*
+```
+
+* Applications écoutant sur les ports TCP IPv4:
+
+```bash
+[root@centos ~]# ss -l -t -4 -p -n
+State      Recv-Q Send-Q                          Local Address:Port                                         Peer Address:Port
+LISTEN     0      128                                         *:22                                                      *:*
+  users:(("sshd",pid=3075,fd=3))
+```
+
+L'application sshd (le serveur SSH) écoute sur le port ssh (port 22).
+
+## SSH
+
+![SSH avec Token2Shell](https://github.com/antoine33520/CCNA/blob/master/TP3/SSH_Token2Shell.png?raw=True)
+
+Pour la connexion SSH j'ai utilisé le client Token2Shell de Choung Networks, il s'agit d'un client multifonction et très puissant, il support SSH, Telnet, TCP Direct, Bluetooth, Serial et l'accès à Docker soit par l'accès à un container existant soit par la création d'un nouveau. Toutes les fonctions peuvent être gérées graphiquement (clés privées, répertoire, macro de commandes, agent ssh, x11, etc...). La société propose également un serveur X très complet (X410) ainsi qu'une version de linux pour WSL (WLinux).
+
+## Firewall
+
+### A faire
+
+* Changement de port :
+
+```bash
+[root@centos ~]# nano /etc/ssh/sshd_config
+```
+
+```bash
+Port 22
+```
+
+Devient
+
+```bash
+Port 2266
+```
+
+* Résultat de la commende ```ss -l -t -4 -n``` :
+
+```bash
+[root@centos ~]# ss -t -l -4 -n
+State      Recv-Q Send-Q                          Local Address:Port                                         Peer Address:Port
+LISTEN     0      128                                         *:2266                                                    *:*
+```
+
+* Erreur de connexion :
+
+Lors de la prémière tentative de connexion il y a une erreur. Ce probème est dû à un bloquage du port 2266 qui n'a pas été autorisé par le pare-feu.
+La solution est donc de faire une entrée manuelle dans la pare-feu:
+
+```bash
+firewall-cmd --add-port=266/tcp --permanent
+```
