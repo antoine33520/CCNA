@@ -342,6 +342,7 @@ firewall-cmd --add-port=2266/tcp --permanent
 ```
 
 ### B. a faire
+
 Il faut commencer par autoriser le port 5454 dans le firewall pour netcat:
 
 ```bash
@@ -379,7 +380,7 @@ Résultat de la commande "ss -t4n"
 
 ```bash
 [root@centos ~]# ss -t4n
-State      Recv-Q Send-Q                          Local Address:Port                                         Peer Address:Port              
+State      Recv-Q Send-Q                          Local Address:Port                                         Peer Address:Port
 ESTAB      0      52                             192.168.127.10:2266                                        192.168.127.1:1439    (Terminal ssh 1)
 ESTAB      0      0                                   127.0.0.1:5454                                            127.0.0.1:45512   (Server Netcat)
 ESTAB      0      0                              192.168.127.10:2266                                        192.168.127.1:1152    (Terminal ssh 2)
@@ -387,7 +388,8 @@ ESTAB      0      0                              192.168.127.10:2266            
 ESTAB      0      0                                   127.0.0.1:45512                                           127.0.0.1:5454    (Client Netcat)
 ```
 
-## Préparation des hôtes :
+## Préparation des hôtes
+
 * ping
 
 PC1 vers PC2
@@ -406,6 +408,7 @@ Statistiques Ping pour 192.168.112.2:
 Durée approximative des boucles en millisecondes :
     Minimum = 0ms, Maximum = 1ms, Moyenne = 0ms
 ```
+
 PC2 vers PC1
 
 ```powershell
@@ -441,6 +444,7 @@ Durée approximative des boucles en millisecondes :
 ```
 
 PC2 vers VM2
+
 ```powershell
     PS C:\Users\Bourbon> ping 192.168.102.10
 
@@ -548,6 +552,7 @@ Itinéraires persistants :
 ```
 
 Table de routage du PC 2
+
 ```powershell
     IPv4 Table de routage
     ===========================================================================
@@ -587,13 +592,15 @@ Table de routage du PC 2
     ===========================================================================
 ```
 
-## Configuration du routage :
+## Configuration du routage
 
 PC1 : Ajout de la route vers le PC2
+
 ```powershell
 PS C:\WINDOWS\system32> route add 192.168.102.0/24 mask 255.255.255.0 192.168.112.2
  OK!
 ```
+
 Ping PC1 vers Host-Only PC2
 
 ```powershell
@@ -611,7 +618,6 @@ Durée approximative des boucles en millisecondes :
     Minimum = 0ms, Maximum = 1ms, Moyenne = 0ms
 ```
 
-
 PC2 : Ajout de la route vers le PC1
 
 ```powershell
@@ -619,7 +625,6 @@ PC2 : Ajout de la route vers le PC1
      OK!
     PS C:\WINDOWS\system32> ping 192.168.101.1
 ```
-
 
 Ping PC2 vers Host-Only PC1
 
@@ -668,13 +673,14 @@ rtt min/avg/max/mdev = 1.278/1.469/1.605/0.128 ms
 ```
 
 VM2 : Ajout de la route vers PC2 et VM1
+
 ```bash
     [root@localhost ~]# ip route add 192.168.112.0/24 via 192.168.102.1 dev enp0s8
     [root@localhost ~]# ip route add 192.168.101.0/24 via 192.168.102.1 dev enp0s8
     [root@localhost ~]#
 ```
-    
-Ping VM2 vers IP du PC1 dans le réseau 12 -> 
+
+Ping VM2 vers IP du PC1 dans le réseau 12
 
 ```bash
     [root@localhost ~]# ping 192.168.112.1
@@ -686,7 +692,8 @@ Ping VM2 vers IP du PC1 dans le réseau 12 ->
     64 bytes from 192.168.112.1: icmp_seq=5 ttl=127 time=1.13 ms
 ```
 
-Ping VM2 vers IP du PC1 dans le réseau 1 :
+Ping VM2 vers IP du PC1 dans le réseau 1
+
 ```bash
     [root@localhost ~]# ping 192.168.101.1
     PING 192.168.101.1 (192.168.101.1) 56(84) bytes of data.
@@ -695,9 +702,6 @@ Ping VM2 vers IP du PC1 dans le réseau 1 :
     64 bytes from 192.168.101.1: icmp_seq=3 ttl=126 time=1.11 ms
     64 bytes from 192.168.101.1: icmp_seq=4 ttl=126 time=1.13 ms
 ```
-
-
-
 
 Ping VM1 vers tous les FQDN
 
