@@ -146,6 +146,9 @@ _Cette ligne elle indique à la machine que pour accéder à ce précis (ici 10.
 
 _Là il s'agit de la même chose que la ligne précedente mais pour le réseau 192.168.127.0/24 via l'adresse 192.168.127.10._
 
+
+## 5.
+
 #### Ci-dessous une requête "ping" de l'hôte vers la VM
 
 ```powershell
