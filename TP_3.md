@@ -175,7 +175,7 @@ PING 192.168.127.1 (192.168.127.1) 56(84) bytes of data.
 64 bytes from 192.168.127.1: icmp_seq=5 ttl=128 time=0.493 ms
 ```
 
-#### Pour continuer la table de routage de l'hôte avec la commande "route PRINT"
+#### Pour continuer la table de routage de l'hôte avec la commande "route print"
 
 ```powershell
 PS C:\Users\mathc> route PRINT -4
