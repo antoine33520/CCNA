@@ -53,3 +53,43 @@ Pour la routeur il faut rajouter les lignes:
 
 Il faut effectuer la même opération sur les autres machines en utilisant les informations correspondantes.
 
+### 3. Mise en place du routage statique
+
+Pour activer la fonction de routage sur la machine routeur il faut utiliser la commande
+
+```bash
+sysctl -w net.ipv4.conf.all.forwarding=1
+```
+
+> Pour parrer à la désactivation du routage lors du redémarrage de la machine j'ai inclu la commande dans le fichier ".bashrc" (la méthode trés trés sale) de l'utilisateur root (le seul utilisateur que j'ai et ça evite le mot de passe sudo).
+>
+> *édit*: Bon méthode un peu plus propre un fichier "/etc/systemd/system/tp.service" qui renvoit sur un fichier /root/tp.sh
+> ```bash
+> sysctl -w net.ipv4.conf.all.forwarding=1
+> sysctl -w net.ipv4.conf.eth0.forwarding=0
+> ```
+> Puis
+> ```bash
+> systemctl enable tp
+> ```
+>
+> *édit2*: bon mon idée avait pour moi une certaine logique mais ne fonctionne pas donc j'ai trouvé une autre solution bien plus propre (BAC +5 recherhce Google)
+> Ajouter ```net.ipv4.ip_forward = 1``` au fichier /etc/sysctl.conf
+> Cette fois ça fonctionne !
+
+Ensuite on désactive le pare-feu
+
+```bash
+systemctl disable firewalld && systemctl stop firewalld
+```
+
+On vérifie les routes
+
+```bash
+[root@router1 ~]# ip route show
+default via 192.168.20.1 dev eth0 proto dhcp metric 100 
+10.1.0.0/24 dev eth1 proto kernel scope link src 10.1.0.254 metric 101 
+10.2.0.0/24 dev eth2 proto kernel scope link src 10.2.0.254 metric 102
+```
+
+Maintenant il faut définir les routes pour le client et le serveur.
