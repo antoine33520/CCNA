@@ -76,6 +76,8 @@ sysctl -w net.ipv4.conf.all.forwarding=1
 > *édit2*: bon mon idée avait pour moi une certaine logique mais ne fonctionne pas donc j'ai trouvé une autre solution bien plus propre (BAC +5 recherhce Google)
 > Ajouter ```net.ipv4.ip_forward = 1``` au fichier /etc/sysctl.conf
 > Cette fois ça fonctionne !
+>
+> *édit3*: En fait avant la méthode de l'édit2 j'étais parti sur un script service en utilisant systemctl mais j'ai pas réussi et je viens juste de comprendre pourquoi, en pensant à faire un script pour l'automatisation de l'installation de docker et kubernetes sur centos je me suis dit que j'avais dû oublier quelque chose et c'était le ```#!/bin/bash``` à mon avis. Je viens d'ouvrir vscode en deux secondes juste pour écrire ça mais je ferai le script kube plus tard si j'ai un peu de temps et on pourra en parler.
 
 Ensuite on désactive le pare-feu
 
