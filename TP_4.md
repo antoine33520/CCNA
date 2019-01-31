@@ -95,3 +95,4 @@ default via 192.168.20.1 dev eth0 proto dhcp metric 100
 ```
 
 Maintenant il faut définir les routes pour le client et le serveur.
+
