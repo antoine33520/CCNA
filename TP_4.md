@@ -277,3 +277,10 @@ Connexion activée (chemin D-Bus actif : /org/freedesktop/NetworkManager/ActiveC
 ```
 
 Maintenant nous avons l'adresse IP et MAC de la passerelle utilisée pour l'accès au Internet (un petit PfSense).
+
+### 2. Wireshark
+
+#### A. Interception d'ARP et `ping`
+
+On voit bien qu'ici notre client1 ne communique avec le protocol ARP (niveau 2) qu'avec le router1 et pas directement avec le server1.
+Ceci est dû au fonctionnement du protocol arp, sauf dans certains précis l'ARP est envoyé en boradcast or le client1 et le server1 ne sont pas sur le même réseau donc n'ont pas la même adresse de broadcast et au final pas d'arp entre les deux machines. Pour régler celà la communication passe par le router qui lui est sur les deux réseaux.
