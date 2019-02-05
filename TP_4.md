@@ -31,13 +31,13 @@ Pour la VM routeur:
 Le FQDN peut être modifié soit soit de façon temporaire avec la commande.
 
 ```bash
-sudo hostname router1.tp4
+hostname router1.tp4
 ```
 
 ou de façon permanente
 
 ```bash
-echo 'router1.tp4' | sudo tee /etc/hostname
+echo 'router1.tp4' | tee /etc/hostname
 ```
 
 C'est la même procédure pour les autres machines.
@@ -282,5 +282,214 @@ Maintenant nous avons l'adresse IP et MAC de la passerelle utilisée pour l'acc�
 
 #### A. Interception d'ARP et `ping`
 
+Lien vers le fichier pccap pour le
+[ping](./TP4/ping.pcap)
+
 On voit bien qu'ici notre client1 ne communique avec le protocol ARP (niveau 2) qu'avec le router1 et pas directement avec le server1.
 Ceci est dû au fonctionnement du protocol arp, sauf dans certains précis l'ARP est envoyé en boradcast or le client1 et le server1 ne sont pas sur le même réseau donc n'ont pas la même adresse de broadcast et au final pas d'arp entre les deux machines. Pour régler celà la communication passe par le router qui lui est sur les deux réseaux.
+
+#### B. Interception d'une communication `netcat`
+
+Firewall:
+
+```bash
+[root@server1 ~]# firewall-cmd --add-port=8888/tcp --permanent
+success
+```
+
+Table ARP:
+
+```bash
+[root@router1 ~]# ip neigh flush all
+```
+
+> Bon Léo là pour nc j'ai un
+>
+> ```bash
+> [root@client1 ~]# nc -p 8888 10.2.0.10
+> Ncat: No route to host.
+> ```
+>
+> Je ne comprends pas d'où ça vient alors que mes routes sont bonnes, ma tables arp ne contient que la Gateway et `arping` passe bien cette fois.
+> On verra tout à l'heure si c'est quelque chose que je fais mal ou si ça restera un mystère
+
+#### C. Interception d'un trafic HTTP (BONUS)
+
+##### Installation du serveur WEB
+
+> Tant que j'ai un peu de motive et que mon mal de crâne reste n'empire pas je vais comment l'installation du GUI et de nginx
+
+Server1:
+
+```bash
+ifup eth0
+
+yum install -y nginx
+
+firewall-cmd --add-port=80/tcp
+firewall-cmd --reload
+
+systemctl enable nginx
+systemctl start nginx
+
+ifdown eth0
+```
+
+server1:
+
+```bash
+[root@server1 ~] systemctl status nginx
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; vendor preset: disabled)
+   Active: active (running) since mar. 2019-02-05 11:07:28 CET; 2min 45s ago
+  Process: 4528 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 4525 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 4524 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 4530 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─4530 nginx: master process /usr/sbin/nginx
+           └─4531 nginx: worker process
+
+févr. 05 11:07:28 server1.tp4 systemd[1]: Starting The nginx HTTP and reverse proxy server...
+févr. 05 11:07:28 server1.tp4 nginx[4525]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+févr. 05 11:07:28 server1.tp4 nginx[4525]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+févr. 05 11:07:28 server1.tp4 systemd[1]: Failed to read PID from file /run/nginx.pid: Invalid argument
+févr. 05 11:07:28 server1.tp4 systemd[1]: Started The nginx HTTP and reverse proxy server.
+```
+
+```bash
+[root@server1 ~]# curl localhost:80
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head>
+        <title>Test Page for the Nginx HTTP Server on Fedora</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <style type="text/css">
+            /*<![CDATA[*/
+            body {
+                background-color: #fff;
+                color: #000;
+                font-size: 0.9em;
+                font-family: sans-serif,helvetica;
+                margin: 0;
+                padding: 0;
+            }
+            :link {
+                color: #c00;
+            }
+            :visited {
+                color: #c00;
+            }
+            a:hover {
+                color: #f50;
+            }
+            h1 {
+                text-align: center;
+                margin: 0;
+                padding: 0.6em 2em 0.4em;
+                background-color: #294172;
+                color: #fff;
+                font-weight: normal;
+                font-size: 1.75em;
+                border-bottom: 2px solid #000;
+            }
+            h1 strong {
+                font-weight: bold;
+                font-size: 1.5em;
+            }
+            h2 {
+                text-align: center;
+                background-color: #3C6EB4;
+                font-size: 1.1em;
+                font-weight: bold;
+                color: #fff;
+                margin: 0;
+                padding: 0.5em;
+                border-bottom: 2px solid #294172;
+            }
+            hr {
+                display: none;
+            }
+            .content {
+                padding: 1em 5em;
+            }
+            .alert {
+                border: 2px solid #000;
+            }
+
+            img {
+                border: 2px solid #fff;
+                padding: 2px;
+                margin: 2px;
+            }
+            a:hover img {
+                border: 2px solid #294172;
+            }
+            .logos {
+                margin: 1em;
+                text-align: center;
+            }
+            /*]]>*/
+        </style>
+    </head>
+
+    <body>
+        <h1>Welcome to <strong>nginx</strong> on Fedora!</h1>
+
+        <div class="content">
+            <p>This page is used to test the proper operation of the
+            <strong>nginx</strong> HTTP server after it has been
+            installed. If you can read this page, it means that the
+            web server installed at this site is working
+            properly.</p>
+
+            <div class="alert">
+                <h2>Website Administrator</h2>
+                <div class="content">
+                    <p>This is the default <tt>index.html</tt> page that
+                    is distributed with <strong>nginx</strong> on
+                    Fedora.  It is located in
+                    <tt>/usr/share/nginx/html</tt>.</p>
+
+                    <p>You should now put your content in a location of
+                    your choice and edit the <tt>root</tt> configuration
+                    directive in the <strong>nginx</strong>
+                    configuration file
+                    <tt>/etc/nginx/nginx.conf</tt>.</p>
+
+                </div>
+            </div>
+
+            <div class="logos">
+                <a href="http://nginx.net/"><img
+                    src="nginx-logo.png"
+                    alt="[ Powered by nginx ]"
+                    width="121" height="32" /></a>
+
+                <a href="http://fedoraproject.org/"><img
+                    src="poweredby.png"
+                    alt="[ Powered by Fedora ]"
+                    width="88" height="31" /></a>
+            </div>
+        </div>
+    </body>
+</html>
+```
+
+Pour router1 -> server1 toujours une erreur sur les routes, il y a visiblement que le `ping` et le `arping` qui passent correctement.
+
+##### Installation du gui
+
+```bash
+ifup eth0
+
+yum groupinstall "X Window system"
+
+yum groupinstall xfce
+
+systemctl isolate graphical.target
+systemctl set-default graphical.target
+
+reboot
+```
