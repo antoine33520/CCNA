@@ -328,4 +328,3 @@ server1        |         |               Client1                    dhcp-net2
                   +----+         +----+
                   router1        router2
 ```
-
