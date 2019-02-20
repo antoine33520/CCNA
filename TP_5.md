@@ -131,4 +131,201 @@ Ensuite il faut installer les paquets pour le serveur dhccp:
 [root@dhcp-net2 ~]# yum install -y dhcp
 ```
 
+```bash
+[root@dhcp-net2 ~]# ifup eth0 && ifdown eth2
+```
+
 #### 5. Démarrer le serveur DHCP
+
+Après avoir modifié le fichier de configuration:
+
+```bash
+[root@dhcp-net2 ~]# systemctl start dhcpd
+```
+
+Pour le démarrage automatique:
+
+```bash
+[root@dhcp-net2 ~]# systemctl enable dhcpd
+```
+Pour vérifier que le service est démarré:
+
+```bash
+[root@dhcp-net2 ~]# systemctl status dhcpd -l
+● dhcpd.service - DHCPv4 Server Daemon
+   Loaded: loaded (/usr/lib/systemd/system/dhcpd.service; enabled; vendor preset: disabled)
+   Active: active (running) since mer. 2019-02-20 17:27:20 CET; 2min 48s ago
+     Docs: man:dhcpd(8)
+           man:dhcpd.conf(5)
+ Main PID: 3881 (dhcpd)
+   Status: "Dispatching packets..."
+   CGroup: /system.slice/dhcpd.service
+           └─3881 /usr/sbin/dhcpd -f -cf /etc/dhcp/dhcpd.conf -user dhcpd -group dhcpd --no-pid
+
+févr. 20 17:27:20 dhcp-net2.tp5.b1 dhcpd[3881]: Listening on LPF/eth0/00:50:00:00:05:00/10.5.2.0/24
+févr. 20 17:27:20 dhcp-net2.tp5.b1 dhcpd[3881]: Sending on   LPF/eth0/00:50:00:00:05:00/10.5.2.0/24
+févr. 20 17:27:20 dhcp-net2.tp5.b1 dhcpd[3881]: Sending on   Socket/fallback/fallback-net
+févr. 20 17:27:20 dhcp-net2.tp5.b1 systemd[1]: Started DHCPv4 Server Daemon.
+```
+
+#### 6. Faire un test
+En utilisant la VM `client1.tp5.b1`:
+- Modification du fichier `/etc/sysconfig/network-scripts/ifcfg-eth0` pour une modification permanante
+- `dhclient -v` pour demander une adresse ip immédiatement lors de la première utilisation ou `dhclient -v -r` si l'adresse IP de la carte a déjà été donné par le serveur DHCP.
+
+```bash
+[root@client1 ~]# dhclient -v eth0
+Internet Systems Consortium DHCP Client 4.2.5
+Copyright 2004-2013 Internet Systems Consortium.
+All rights reserved.
+For info, please visit https://www.isc.org/software/dhcp/
+
+Listening on LPF/eth0/00:50:00:00:04:00
+Sending on   LPF/eth0/00:50:00:00:04:00
+Sending on   Socket/fallback
+DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3 (xid=0x6ad2d7)
+DHCPREQUEST on eth0 to 255.255.255.255 port 67 (xid=0x6ad2d7)
+DHCPOFFER from 10.5.2.11
+DHCPACK from 10.5.2.11 (xid=0x6ad2d7)
+bound to 10.5.2.50 -- renewal in 254 seconds.
+```
+
+### 2. Explorer un peu DHCP
+
+On va effectuer un `dhcpclient -v -r` pendant une capture afin de récupérer les trames correspondant au serveur DHCP:
+
+```bash
+[root@client1 ~]# dhclient -r
+```
+
+Les trames en provenance de l'adresse MAC `50:00:00:07:00:01` correspondents à la carte `eth1` qui n'a jamais été utilisé pendant le TP:
+
+```bash
+[root@client1 ~]# ip a s dev eth1
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 00:50:00:00:04:01 brd ff:ff:ff:ff:ff:ff
+```
+Lien vers le [fichier de capture Wireshark](./TP5/capture_dhcp.pcapng).
+
+Sur le fichier de capture on peut observer les trames entre le serveur et le client DHCP (`client1.tp5.b1` et `dhcp-net2.tp5.b1`).
+
+## IV. Bonus
+### 1. Installer un serveur web
+#### 1.1 Installation du serveur
+
+Sur le `server1.tp5.b1`
+
+```bash
+# Allumer l'interface NAT
+ifup eth2
+
+# Installation de nginx
+yum install -y nginx
+
+# Ouverture du port firewall
+firewall-cmd --add-port=80/tcp
+firewall-cmd --reload
+
+# Lancement du serveur web
+systemctl start nginx
+
+# Eteindre l'interface NAT
+ifdown eth2
+```
+
+Vérification:
+
+```bash
+[root@server1 ~]# systemctl status -l nginx
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/nginx.service.d
+           └─override.conf
+   Active: active (running) since mer. 2019-02-20 19:13:07 CET; 1min 2s ago
+  Process: 7182 ExecStartPost=/bin/sleep 0.1 (code=exited, status=0/SUCCESS)
+  Process: 7179 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 7177 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 7175 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 7181 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─7181 nginx: master process /usr/sbin/ngin
+           └─7183 nginx: worker proces
+
+févr. 20 19:13:07 server1.tp5.b1 systemd[1]: Stopped The nginx HTTP and reverse proxy server.
+févr. 20 19:13:07 server1.tp5.b1 systemd[1]: Starting The nginx HTTP and reverse proxy server...
+févr. 20 19:13:07 server1.tp5.b1 nginx[7177]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+févr. 20 19:13:07 server1.tp5.b1 nginx[7177]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+févr. 20 19:13:07 server1.tp5.b1 systemd[1]: Started The nginx HTTP and reverse proxy server.
+```
+
+#### 1.2 Test depuis le `client1.tp5.b1`:
+
+```bash
+[root@client1 ~]# curl server1.tp5.b1 > curl
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  3700  100  3700    0     0  15210      0 --:--:-- --:--:-- --:--:-- 15352
+```
+
+[Sortie Curl avec formatage Markdown](./TP5/curl.md)
+
+### 2. Clé SSH
+#### 2.1 Sur `client1.tp5.b1`
+Création des clés publique et privée:
+
+```bash
+[root@client1 ~]# ssh-keygen
+```
+
+```bash
+[root@client1 ~]# ls ~/.ssh/
+id_rsa	id_rsa.pub
+```
+
+`id_rsa` est la clé privée et `id_rsa.pub` la clé publique qui sont stockées dans le répertoire `~/.ssh/`.\
+Lors de la création clés il est possible de choisir de protéger la clé privée par un mot de passe ou non, ce n'est pas nécessaire pour ce TP.
+
+Puis il faut donner au `server1.tp5.b1` la clé publique pour permettre l'identafication.
+
+```bash
+[root@client1 ~]# ssh-copy-id -i ~/.ssh/id_rsa.pub root@server1.tp5.b1
+```
+
+On teste ensuite le fonctionnement de l'identification par clés:
+
+```bash
+[root@client1 ~]# ssh -i ~/.ssh/id_rsa root@server1.tp5.b1
+Last login: Wed Feb 20 22:01:24 2019 from 10.5.2.50
+[root@server1 ~]# 
+```
+
+#### 2.2 Sur `server1.tp5.b1`
+
+Comme seul l'utilisateur `root` est utilisé pour plus de sécurité il est possible de remplacer dans le fichier `/etc/ssh/sshd_config` `#PermitRootLogin yes` par `PermitRootLogin without-password` afin d'autorisé la connexion SSH pour l'utilisateur `root` uniquement en utilisant uniquement une identification par clés et plus par mot de passe.
+
+### 3. Ajout du `NAT`
+
+Il faut ajouter sur une des interfaces d'un des deux routeurs une connexion vers le NAT.\
+Ici le NAT est relié au `router1.tp5.b1`.
+
+```schema
+               +---------+
+               |         |
+               |   NAT   |
+server1        |         |               Client1                    dhcp-net2
+               +----+----+
++----+              |                    +----+                      +----+
+|    |              |                    |    |                      |    |
+|    |              |                    |    |                      |    |
+|    |              |                    |    |     +----------+     |    |
+|    |              |                    |    +-----+  Switch  +-----+    |
++--+-+              |                    +----+     +-----+----+     +----+
+   |                |                                     |
+   |                |                                     |
+   |                |                                     |
+   |              +-+--+         +----+                   |
+   +--------------+    +---------+    +-------------------+
+                  +----+         +----+
+                  router1        router2
+```
+
