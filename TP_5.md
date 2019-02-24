@@ -322,28 +322,9 @@ Comme seul l'utilisateur `root` est utilisé pour plus de sécurité il est poss
 Il faut ajouter sur une des interfaces d'un des deux routeurs une connexion vers le NAT.\
 Ici le NAT est relié au `router1.tp5.b1`.
 
-```schema
-               +---------+
-               |         |
-               |   NAT   |
-server1        |         |               Client1                    dhcp-net2
-               +----+----+
-+----+              |                    +----+                      +----+
-|    |              |                    |    |                      |    |
-|    |              |                    |    |                      |    |
-|    |              | DHCP               |    |     +----------+     |    |
-|    |              |                    |    +-----+  Switch  +-----+    |
-+--+-+              |                    +----+     +-----+----+     +----+
-   |                |                                     |
-   |                |                                     |
-   |                |                                     |
-   |  NET1        +-+--+         +----+   NET2            |
-   +--------------+    +---------+    +-------------------+
-                  +----+         +----+
-                  router1        router2
-```
+![Schéma Topology](./TP5/topology.png)
 
-*(Je sais il est beau mon schéma mais j'ai un peu triché avec [ça](http://asciiflow.com/))*
+*(Je sais il est beau mon schéma, merci pour [draw.io](https://draw.io/))*
 
 La connexion entre le réseau `NAT` et le `router1.tp5.b1` doit être configuré en DHCP, une passerelle sera définit et sera la route par défaut.\
 Il faut ensuite configuré le routage.
@@ -608,4 +589,4 @@ rtt min/avg/max/mdev = 10.879/12.650/14.421/1.771 ms
 - EVE-NG a été installé via son image iso sur une machine virtuelle hébergée `Proxmox`.
 - Le routeur servant pour le réseau NAT et un pfsense hébergé également sur le `Proxmox`.
 - Le serveur DNS est sur un réseau différent que celui attribué par le serveur DHCP mais le routage est bien éffectué entre les deux réseau via un tunnel IPsec.
-- Topology du réseau sur EVE-NG [ici](./TP5/topology.png).
+- Topology du réseau sur EVE-NG [ici](./TP5/topology_eve.png).
