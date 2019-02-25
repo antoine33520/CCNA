@@ -585,7 +585,7 @@ rtt min/avg/max/mdev = 10.879/12.650/14.421/1.771 ms
 ## __Informations__
 
 - Ce TP a entièrement été réalisé sur [EVE-NG Community](https://www.eve-ng.net/) et la connexion `telnet` pour l'accès console aux routeurs et aux machines était via `"EVE-NG Intergration (Linux client side)"` utilisant le protocol `telnet` mais permetant aussi les protocols `vnc` et `rdp`.
-- La virtualisation des deux VMs Centos a été faite avec `QEMU` intégré à `EVE-NG`, (par défaut la version 2.4.0).
+- La virtualisation des trois VMs Centos a été faite avec `QEMU` intégré à `EVE-NG`, (par défaut la version 2.4.0).
 - EVE-NG a été installé via son image iso sur une machine virtuelle hébergée `Proxmox`.
 - Le routeur servant pour le réseau NAT et un pfsense hébergé également sur le `Proxmox`.
 - Le serveur DNS est sur un réseau différent que celui attribué par le serveur DHCP mais le routage est bien éffectué entre les deux réseau via un tunnel IPsec.
