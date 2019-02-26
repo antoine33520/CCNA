@@ -146,10 +146,9 @@ _Cette ligne elle indique à la machine que pour accéder à ce précis (ici 10.
 
 _Là il s'agit de la même chose que la ligne précedente mais pour le réseau 192.168.127.0/24 via l'adresse 192.168.127.10._
 
+## 5
 
-## 5.
-
-#### Ci-dessous une requête "ping" de l'hôte vers la VM
+### Ci-dessous une requête "ping" de l'hôte vers la VM
 
 ```powershell
 PS C:\Users\mathc> ping 192.168.127.10
@@ -166,7 +165,7 @@ Durée approximative des boucles en millisecondes :
     Minimum = 0ms, Maximum = 0ms, Moyenne = 0ms
 ```
 
-#### Et ci-dessous une requête "ping" de la VM vers l'hôte
+### Et ci-dessous une requête "ping" de la VM vers l'hôte
 
 ```bash
 [root@centos /]# ping -c 5 192.168.127.1
@@ -178,7 +177,7 @@ PING 192.168.127.1 (192.168.127.1) 56(84) bytes of data.
 64 bytes from 192.168.127.1: icmp_seq=5 ttl=128 time=0.493 ms
 ```
 
-#### Pour continuer la table de routage de l'hôte avec la commande "route print"
+### Pour continuer la table de routage de l'hôte avec la commande "route print"
 
 ```powershell
 PS C:\Users\mathc> route PRINT -4
@@ -217,7 +216,7 @@ Itinéraires persistants :
   Aucun
 ```
 
-#### Téléchargement d'un fichier avec wget
+### Téléchargement d'un fichier avec wget
 
 ```bash
 [root@centos /]# wget https://github.com/It4lik/B1-Reseau-2018/blob/master/README.md
@@ -233,7 +232,7 @@ Sauvegarde en : "README.md"
 2019-01-08 17:47:37 (380 KB/s) - "README.md" sauvegardé [54302]
 ```
 
-#### Utilisation de la commande "dig"
+### Utilisation de la commande "dig"
 
 La commande "dig" permet d'obtenir les
 
@@ -282,6 +281,7 @@ google.com.             0       IN      A       216.58.204.238
 ## Exploration des ports locaux
 
   Commande SS:
+  
 * Ports TCP IPv4 en écoute:
 
 ```bash
