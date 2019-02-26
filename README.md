@@ -29,3 +29,11 @@ Le fichier du rendu est "TP_5.md" et le "TP5" contient les fichiers correspondan
 [Fichier de rendu du TP n°5](./TP_5.md)
 
 Informations à propos de la réalisation du TP [ici](./TP_5.md#Informations)
+
+## TP n°6
+
+Le fichier du rendu est "TP_6.md" et le "TP6" contient les fichiers correspondants utilisés dans le fichier
+
+[Fichier de rendu du TP n°5](./TP_6.md)
+
+Informations à propos de la réalisation du TP [ici](./TP_6.md#Informations)
