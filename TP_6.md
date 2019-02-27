@@ -118,12 +118,12 @@ r1.tp6.b1(config-router)#network 10.6.202.0 0.0.0.255 area 2
 
 On va utiliser une nouvelle fois `router1.tp6.b1`
 
-##### On vérifie les routes enregistrées sur le routeur:
+##### On vérifie les routes enregistrées sur le routeur
 
 ```cisco
 r1.tp6.b1#sh ip ro ospf
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
        N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
        E1 - OSPF external type 1, E2 - OSPF external type 2
        i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
