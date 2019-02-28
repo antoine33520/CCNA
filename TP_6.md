@@ -276,6 +276,33 @@ FastEthernet0/0            192.168.20.26   YES DHCP   up                    up
 
 #### 1.2 Configuration du NAT
 
+On fait comme pour le TP précédent,
+
+```cisco
+r4.tp6.b1(config)#int fa0/0
+r4.tp6.b1(config-if)#ip nat out | (ip nat outside)
+r4.tp6.b1(config-if)#
+*Feb 28 17:22:34.555: %LINEPROTO-5-UPDOWN: Line protocol on Interface NVI0, changed state to up
+```
+
+Pour la carte qui va partager l'accès au réseau WAN (Internet).
+
+```cisco
+r4.tp6.b1(config)#int e1/1
+r4.tp6.b1(config-if)#ip na in
+r4.tp6.b1(config-if)#int e1/3
+r4.tp6.b1(config-if)#ip na in | (ip nat inside)
+```
+
+Pour les cartes qui sont dans les réseau LANs qui peuvent également être des réseau WANs en fonction de la topologie de l'infrastructure.
+
+```cisco
+r4.tp6.b1(config)#ip nat in so li 1 int fa0/0 ov | (ip nat inside source list 1 interface fastEthernet 0/0 overload)
+r4.tp6.b1(config)#ac 1 p an | (access-list 1 permit any)
+```
+
+Autorise le `nat` pour tous les réseau internes
+
 ## __Informations__
 
 <!--
