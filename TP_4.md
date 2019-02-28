@@ -61,26 +61,26 @@ Pour activer la fonction de routage sur la machine routeur il faut utiliser la c
 sysctl -w net.ipv4.conf.all.forwarding=1
 ```
 
-> Pour parrer à la désactivation du routage lors du redémarrage de la machine j'ai inclu la commande dans le fichier ".bashrc" (la méthode trés trés sale) de l'utilisateur root (le seul utilisateur que j'ai et ça evite le mot de passe sudo).
->
-> _édit_: Bon méthode un peu plus propre un fichier "/etc/systemd/system/tp.service" qui renvoit sur un fichier /root/tp.sh
->
-> ```bash
-> sysctl -w net.ipv4.conf.all.forwarding=1
-> sysctl -w net.ipv4.conf.eth0.forwarding=0
-> ```
->
-> Puis
->
-> ```bash
-> systemctl enable tp
-> ```
->
-> _édit2_: bon mon idée avait pour moi une certaine logique mais ne fonctionne pas donc j'ai trouvé une autre solution bien plus propre (BAC +5 recherhce Google)
-> Ajouter `net.ipv4.ip_forward = 1` au fichier /etc/sysctl.conf
-> Cette fois ça fonctionne !
->
-> _édit3_: En fait avant la méthode de l'édit2 j'étais parti sur un script service en utilisant systemctl mais j'ai pas réussi et je viens juste de comprendre pourquoi, en pensant à faire un script pour l'automatisation de l'installation de docker et kubernetes sur centos je me suis dit que j'avais dû oublier quelque chose et c'était le `#!/bin/bash` à mon avis. Je viens d'ouvrir vscode en deux secondes juste pour écrire ça mais je ferai le script kube plus tard si j'ai un peu de temps et on pourra en parler.
+Pour parrer à la désactivation du routage lors du redémarrage de la machine j'ai inclu la commande dans le fichier ".bashrc" (la méthode trés trés sale) de l'utilisateur root (le seul utilisateur que j'ai et ça evite le mot de passe sudo).
+
+_édit_: Bon méthode un peu plus propre un fichier "/etc/systemd/system/tp.service" qui renvoit sur un fichier /root/tp.sh
+
+```bash
+sysctl -w net.ipv4.conf.all.forwarding=1
+sysctl -w net.ipv4.conf.eth0.forwarding=0
+```
+
+Puis
+
+```bash
+systemctl enable tp
+```
+
+_édit2_: bon mon idée avait pour moi une certaine logique mais ne fonctionne pas donc j'ai trouvé une autre solution bien plus propre (BAC +5 recherhce Google)
+Ajouter `net.ipv4.ip_forward = 1` au fichier /etc/sysctl.conf
+Cette fois ça fonctionne !
+
+_édit3_: En fait avant la méthode de l'édit2 j'étais parti sur un script service en utilisant systemctl mais j'ai pas réussi et je viens juste de comprendre pourquoi, en pensant à faire un script pour l'automatisation de l'installation de docker et kubernetes sur centos je me suis dit que j'avais dû oublier quelque chose et c'était le `#!/bin/bash` à mon avis. Je viens d'ouvrir vscode en deux secondes juste pour écrire ça mais je ferai le script kube plus tard si j'ai un peu de temps et on pourra en parler.
 
 Ensuite on désactive le pare-feu
 
@@ -304,14 +304,14 @@ Table ARP:
 ```
 
 > Bon Léo là pour nc j'ai un
->
-> ```bash
-> [root@client1 ~]# nc -p 8888 10.2.0.10
-> Ncat: No route to host.
-> ```
->
-> Je ne comprends pas d'où ça vient alors que mes routes sont bonnes, ma tables arp ne contient que la Gateway et `arping` passe bien cette fois.
-> On verra tout à l'heure si c'est quelque chose que je fais mal ou si ça restera un mystère
+
+```bash
+[root@client1 ~]# nc -p 8888 10.2.0.10
+Ncat: No route to host.
+```
+
+Je ne comprends pas d'où ça vient alors que mes routes sont bonnes, ma tables arp ne contient que la Gateway et `arping` passe bien cette fois.
+On verra tout à l'heure si c'est quelque chose que je fais mal ou si ça restera un mystère
 
 #### C. Interception d'un trafic HTTP (BONUS)
 
