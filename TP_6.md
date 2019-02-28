@@ -245,10 +245,40 @@ Rappel des services pour chaque machine:
 | **DNS**         | `server1.tp6.b1`       | tout le monde (routeurs & VMs) | Le DNS nous permettra de résoudre les noms de domaines en local et nous passer du fichier `/etc/hosts`                                                                                                       |
 | **NTP**         | `server1.tp6.b1`       | réseau serveur `10.6.202.0/24` | Le NTP, qui permet la synchronisation de l'heure, est souvent indispensable pourdes serveurs mais totalement négligeable pour des clients (genre vos PCs, s'ils sont pas à l'heure, tout le monde s'en fout) |
 
+### 1. NAT : accès internet
 
+Sur [`EVE-NG`](#informations) pour l'accès au réseau extérieur le plus simple est d'ajouter une deuxième carte réseau sans passerelle directement connecté à un réseau par exemple le même que la carte principale. Ceci va donner accès au réseau de cette carte en utilisant le `cloud` (en forme de nuage) et en le connectant à la machine à laquelle on veut fournir une connexion.\
+*Par défaut eve-ng ne gère pas le `NAT` pour utiliser cette fonction il faut ajouter une carte réseau virtuelle supplémentaire et configurer le routage manuellement, étant sur un réseau local dont je connais l'implentation exacte.*
 
-<!-- ## __Informations__
+Après avoir relié `r4.tp6.b1` avec le `Cloud`, on regarde quelle interface est est quelle interface est utilisée pour la connexion, ici il s'agit comme sur le sujet de l'interface `fastEthernet 0/0`.
 
+#### 1.1 Configuration IP
+
+```cisco
+r4.tp6.b1(config)#int fa0/0
+r4.tp6.b1(config-if)#ip add dhcp
+r4.tp6.b1(config-if)#no shut
+```
+
+On fait une vérification:
+
+```cisco
+r4.tp6.b1(config)#int fa0/0
+r4.tp6.b1(config-if)#ip add dhcp
+r4.tp6.b1(config-if)#no shut
+```
+
+```cisco
+r4.tp6.b1#sh ip int br
+Interface                  IP-Address      OK? Method Status                Protocol
+FastEthernet0/0            192.168.20.26   YES DHCP   up                    up
+```
+
+#### 1.2 Configuration du NAT
+
+## __Informations__
+
+<!--
 - Ce TP a entièrement été réalisé sur [EVE-NG Community](https://www.eve-ng.net/) et la connexion `telnet` pour l'accès console aux routeurs et aux machines sont faites avec `"EVE-NG Intergration (Linux client side)"` utilisant le protocol `telnet` mais permetant aussi les protocols `vnc` et `rdp`.
 - La virtualisation des trois VMs Centos a été faite avec `QEMU` intégré à `EVE-NG`, (par défaut la version 2.4.0).
 - EVE-NG a été installé via son image iso sur une machine virtuelle hébergée `Proxmox`.
