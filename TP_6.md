@@ -301,7 +301,23 @@ r4.tp6.b1(config)#ip nat in so li 1 int fa0/0 ov | (ip nat inside source list 1 
 r4.tp6.b1(config)#ac 1 p an | (access-list 1 permit any)
 ```
 
-Autorise le `nat` pour tous les réseau internes
+Autorise les réseau `"nat inside"` à accéder à Internet.
+
+```cisco
+r4.tp6.b1(config)#router os 1
+r4.tp6.b1(config-router)#default-inf ori
+```
+
+Indique au réseau `OSPF` que `r4.tp6.b1` partage la connexion vers l'extérieur.
+
+#### 1.3 Configuration DNS
+
+Avant de faire les tests on va configurer l'adresse IP du serveur `DNS` sur les routeurs pour pouvoir résoudre les noms de domaines.
+
+```cisco
+r1.tp6.b1(config)# ip domain-lookup
+r1.tp6.b1(config)# ip name-server 192.168.10.6
+```
 
 ## __Informations__
 
