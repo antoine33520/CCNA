@@ -319,6 +319,173 @@ r1.tp6.b1(config)# ip domain-lookup
 r1.tp6.b1(config)# ip name-server 192.168.10.6
 ```
 
+Pour les tests il faut aussi avoir indiqué un serveur `DNS` aux VMs, `client1.tp6.b1` le serveur DHCP le fera automatiquement dans la suite du TP.
+
+```bash
+[root@client2 ~]# nano /etc/resolv.conf
+
+nameserver 192.168.10.6
+```
+
+#### 1.4 Vérifications
+
+On commence par vérifier que la route par défaut est bien renseignée sur tous les routeurs,\
+Un exemple pour `r2.tp6.b1`
+
+```cisco
+r2.tp6.b1#sh ip route
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is 10.6.100.10 to network 0.0.0.0
+
+O*E2  0.0.0.0/0 [110/1] via 10.6.100.10, 21:25:34, Ethernet1/3
+                [110/1] via 10.6.100.1, 21:25:34, Ethernet1/1
+      10.0.0.0/8 is variably subnetted, 9 subnets, 3 masks
+C        10.6.100.0/30 is directly connected, Ethernet1/1
+L        10.6.100.2/32 is directly connected, Ethernet1/1
+O        10.6.100.4/30 [110/20] via 10.6.100.1, 1d15h, Ethernet1/1
+C        10.6.100.8/30 is directly connected, Ethernet1/3
+L        10.6.100.9/32 is directly connected, Ethernet1/3
+O        10.6.100.12/30 [110/20] via 10.6.100.10, 1d15h, Ethernet1/3
+O IA     10.6.101.0/30 [110/20] via 10.6.100.10, 1d14h, Ethernet1/3
+O IA     10.6.201.0/24 [110/21] via 10.6.100.10, 1d14h, Ethernet1/3
+O IA     10.6.202.0/24 [110/11] via 10.6.100.1, 1d15h, Ethernet1/1
+```
+
+La ligne `Gateway of last resort is 10.6.100.10 to network 0.0.0.0` indique que si le routeur ne trouve pas de route pour aller au réseau demandé il utilisera cette route là pour trouver la bonne destination.
+
+#### 1.5 Tests
+
+Pour faire un test depuis une des VMs on peut utiliser la commande `curl`\
+Un exemple avec `server2.tp6.b1`
+
+```bash
+[root@server2 ~]# curl antoinethys.com > curl
+```
+
+[Fichier `curl`](./TP6/curl.md) avec formatage Markdown
+Cette commande renvoit le code `HTML` du site web hébergé au domaine `antoinethys.com`.
+
+On peut aussi faire un test depuis l'un des routeurs, `r4.tp6.b1` par exemple,\
+Il est possible d'utiliser la commande `telnet` en passant une adresse IP/nom de domaine et un port comme argument, une fois la connexion établie on peut rentrer des commandes, s'il s'agit d'un serveur web non sécurisé avec la commande `GET /` on obtient le code html de la page d'index.
+
+```bash
+r2.tp6.b1#telnet 192.168.10.5 80
+```
+
+Le résultat de la [commande](./TP6/telnet.md)
+
+### 2. Un service d'infra
+
+Le `server1.tp6.b1` a accès à `Internet` ce que va permettre d'installer un serveur web, ici nginx.
+
+```bash
+[root@server1 ~]# ping -c 2 antoinethys.com
+PING antoinethys.com (151.80.143.153) 56(84) bytes of data.
+64 bytes from ameliehusson.com (151.80.143.153): icmp_seq=1 ttl=54 time=38.5 ms
+64 bytes from ameliehusson.com (151.80.143.153): icmp_seq=2 ttl=54 time=89.7 ms
+
+--- antoinethys.com ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 38.595/64.148/89.702/25.554 ms
+```
+
+#### 2.1 Firewall
+
+##### 2.1.1 Démarrage du service
+
+```bash
+[root@server1 ~]# systemctl status -l firewalld
+● firewalld.service - firewalld - dynamic firewall daemon
+   Loaded: loaded (/usr/lib/systemd/system/firewalld.service; enabled; vendor preset: enabled)
+   Active: active (running) since ven. 2019-03-01 18:19:32 CET; 7h ago
+     Docs: man:firewalld(1)
+ Main PID: 2608 (firewalld)
+   CGroup: /system.slice/firewalld.service
+           └─2608 /usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid
+
+mars 01 18:19:27 server1.tp6.b1 systemd[1]: Starting firewalld - dynamic firewall daemon...
+mars 01 18:19:32 server1.tp6.b1 systemd[1]: Started firewalld - dynamic firewall daemon.
+```
+
+Le service du pare-feu est déjà démarré automatiquement au démarrage.
+
+##### 2.1.2 Ouverture des ports
+
+Afin de permettre l'accès au serveur web qui sera bientôt installé sur cette machine il est nécessaire d'ouvrir le port correspondant de façon permanente, ici le port 80.
+
+```bash
+[root@server1 ~]# firewall-cmd --add-port=80/tcp --permanent
+success
+[root@server1 ~]# firewall-cmd --reload
+success
+```
+
+#### 2.2 Serveur Web
+
+##### 2.2.1 Installation
+
+On commence par ajouter le dépôt `epel` puis on install `nginx`.
+
+```bash
+[root@server1 ~]# yum install -y epel-release
+[root@server1 ~]# yum install -y nginx
+```
+
+Il est possible de changer la page d'acceuil en modifiant le fichier `/usr/share/nginx/html/index.html`.
+
+##### 2.2.2 Démarrage
+
+On commence par activer le démarrage automatique du service `nginx` puis on le lance.
+
+```bash
+[root@server1 ~]# systemctl enable nginx
+[root@server1 ~]# systemctl start nginx
+```
+
+#### 2.3 Tests
+
+##### 2.3.1 Le service
+
+On vérifie que le service est bien actif,
+
+```bash
+[root@server1 ~]# systemctl status nginx -l
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; vendor preset: disabled)
+   Active: active (running) since sam. 2019-03-02 02:28:07 CET; 2min 27s ago
+  Process: 3959 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 3957 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 3956 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 3961 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─3961 nginx: master process /usr/sbin/ngin
+           └─3962 nginx: worker proces
+
+mars 02 02:28:07 server1.tp6.b1 systemd[1]: Starting The nginx HTTP and reverse proxy server...
+mars 02 02:28:07 server1.tp6.b1 nginx[3957]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+mars 02 02:28:07 server1.tp6.b1 nginx[3957]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+mars 02 02:28:07 server1.tp6.b1 systemd[1]: Failed to read PID from file /run/nginx.pid: Invalid argument
+mars 02 02:28:07 server1.tp6.b1 systemd[1]: Started The nginx HTTP and reverse proxy server.
+```
+
+##### 2.3.2 En local
+
+On fait un test avec `curl`,
+
+```bash
+[root@server1 ~]# curl localhost > curl_local
+```
+
+Ce qui donne ce [résultat](./TP6/curl_local.md).
+
 ## __Informations__
 
 <!--
