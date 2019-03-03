@@ -707,16 +707,16 @@ En direct
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 4096
 ;; QUESTION SECTION:
-;11.201.6.10.in-addr.arpa.	IN	PTR
+;11.201.6.10.in-addr.arpa.      IN      PTR
 
 ;; ANSWER SECTION:
-11.201.6.10.in-addr.arpa. 86400	IN	PTR	client2.tp6.b1.
+11.201.6.10.in-addr.arpa. 86400 IN      PTR     client2.tp6.b1.
 
 ;; AUTHORITY SECTION:
-6.10.in-addr.arpa.	86400	IN	NS	server1.tp6.b1.
+6.10.in-addr.arpa.        86400 IN      NS      server1.tp6.b1.
 
 ;; ADDITIONAL SECTION:
-server1.tp6.b1.		604800	IN	A	10.6.202.10
+server1.tp6.b1.          604800 IN      A       10.6.202.10
 
 ;; Query time: 160 msec
 ;; SERVER: 10.6.202.10#53(10.6.202.10)
@@ -744,13 +744,151 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 24/36/52 ms
 
 ##### 5.1.1 Configuration
 
+Sur le fichier du sujet on doit juste ajouter les serveurs NTP par exemple :
+
+* 0.pool.ntp.org
+* 1.pool.ntp.org
+* 2.pool.ntp.org
+* 3.pool.ntp.org
+
+Le fichier complétés est [ici](TP6/chrony/serveur/chrony.conf).\
+On y place le contenu dans le fichier `/etc/chrony.conf`.
+
+##### 5.1.2 Ouverture des ports
+
+```bash
+[root@server1 ~]# firewall-cmd --add-port=123/udp --permanent
+success
+[root@server1 ~]# firewall-cmd --reload
+success
+```
+
+##### 5.1.3 Démarrage du service
+
+```bash
+[root@server1 ~]# systemctl start chronyd && systemctl status chronyd -l
+● chronyd.service - NTP client/server
+   Loaded: loaded (/usr/lib/systemd/system/chronyd.service; enabled; vendor preset: enabled)
+   Active: active (running) since sam. 2019-03-02 23:37:48 CET; 22h ago
+     Docs: man:chronyd(8)
+           man:chrony.conf(5)
+  Process: 2628 ExecStartPost=/usr/libexec/chrony-helper update-daemon (code=exited, status=0/SUCCESS)
+  Process: 2579 ExecStart=/usr/sbin/chronyd $OPTIONS (code=exited, status=0/SUCCESS)
+ Main PID: 2591 (chronyd)
+   CGroup: /system.slice/chronyd.service
+           └─2591 /usr/sbin/chronyd
+
+mars 02 23:45:39 server1.tp6.b1 chronyd[2591]: System clock was stepped by 1.267332 seconds
+mars 02 23:45:41 server1.tp6.b1 chronyd[2591]: Selected source 193.200.43.105
+mars 02 23:45:42 server1.tp6.b1 chronyd[2591]: Source 37.187.104.44 replaced with 91.121.96.146
+mars 02 23:45:48 server1.tp6.b1 chronyd[2591]: Selected source 95.81.173.155
+mars 02 23:46:45 server1.tp6.b1 chronyd[2591]: Selected source 94.23.37.34
+mars 02 23:54:19 server1.tp6.b1 chronyd[2591]: Selected source 95.81.173.155
+mars 03 04:21:40 server1.tp6.b1 chronyd[2591]: Selected source 91.121.96.146
+mars 03 10:41:30 server1.tp6.b1 chronyd[2591]: Selected source 94.23.37.34
+mars 03 17:18:16 server1.tp6.b1 chronyd[2591]: Selected source 91.121.96.146
+mars 03 21:06:13 server1.tp6.b1 chronyd[2591]: Selected source 94.23.37.34
+```
+
+##### 5.1.4 Vérifier l'état de la synchronisation NTP
+
+```bash
+[root@server1 ~]# chronyc sources && echo && echo && chronyc tracking
+210 Number of sources = 4
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
+===============================================================================
+^+ 193.200.43.105                2  10   377  1006   -608us[ -270us] +/-   47ms
+^* ks312903.kimsufi.com          3  10   377    10  -1331us[ -983us] +/-   51ms
+^+ milkyway.jeroendeneef.com     2  10   377   789  +2887us[+3228us] +/-   47ms
+^+ ntp-3.arkena.net              2  10   377    28  -1385us[-1038us] +/-   41ms
+
+
+Reference ID    : 5E172522 (ks312903.kimsufi.com)
+Stratum         : 4
+Ref time (UTC)  : Sun Mar 03 21:28:07 2019
+System time     : 0.000774044 seconds fast of NTP time
+Last offset     : +0.000347646 seconds
+RMS offset      : 0.000478879 seconds
+Frequency       : 0.048 ppm fast
+Residual freq   : +0.002 ppm
+Skew            : 0.063 ppm
+Root delay      : 0.038264576 seconds
+Root dispersion : 0.012483912 seconds
+Update interval : 1035.9 seconds
+Leap status     : Normal
+```
+
+#### 5.2 Client NTP
+
+On doit reproduire ces étapes sur toutes les machines.
+
+##### 5.2.1 Configuration
+
+Le [fichier de configuration](TP6/chrony/client/chrony.conf) fournis contient la configuration nécéssaire, il indique comme serveur source de temps `server1.tp6.b1`\
+Maintenant il faut remplacer le fichier `/etc/chrony.conf` par [celui ci](TP6/chrony/client/chrony.conf).
+
+##### 5.2.2 Ouverture des ports
+
+```bash
+[root@server1 ~]# firewall-cmd --add-port=123/udp --permanent
+success
+[root@server1 ~]# firewall-cmd --reload
+success
+```
+
+##### 5.2.3 Démmarrage du service
+
+```bash
+[root@server2 ~]# systemctl start chronyd && systemctl status chronyd -l
+● chronyd.service - NTP client/server
+   Loaded: loaded (/usr/lib/systemd/system/chronyd.service; enabled; vendor preset: enabled)
+   Active: active (running) since dim. 2019-03-03 00:08:17 CET; 22h ago
+     Docs: man:chronyd(8)
+           man:chrony.conf(5)
+  Process: 2626 ExecStartPost=/usr/libexec/chrony-helper update-daemon (code=exited, status=0/SUCCESS)
+  Process: 2580 ExecStart=/usr/sbin/chronyd $OPTIONS (code=exited, status=0/SUCCESS)
+ Main PID: 2602 (chronyd)
+   CGroup: /system.slice/chronyd.service
+           └─2602 /usr/sbin/chronyd
+
+mars 03 00:08:16 server2.tp6.b1 systemd[1]: Starting NTP client/server...
+mars 03 00:08:16 server2.tp6.b1 chronyd[2602]: chronyd version 3.2 starting (+CMDMON +NTP +REFCLOCK +RTC +PRIVDROP +SCFILTER +SECHASH +SIGND +ASYNCDNS +IPV6 +DEBUG)
+mars 03 00:08:17 server2.tp6.b1 chronyd[2602]: Frequency 0.796 +/- 7.643 ppm read from /var/lib/chrony/drift
+mars 03 00:08:17 server2.tp6.b1 systemd[1]: Started NTP client/server.
+mars 03 00:08:32 server2.tp6.b1 chronyd[2602]: Selected source 51.255.141.154
+mars 03 00:09:38 server2.tp6.b1 chronyd[2602]: Selected source 51.255.197.148
+```
+
+##### 5.2.4 Vérifier l'état de la synchronisation NTP
+
+```bash
+[root@server2 ~]# chronyc sources && echo && chronyc tracking
+210 Number of sources = 1
+MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+===============================================================================
+^? server1                       0   6     0     -     +0ns[   +0ns] +/-    0ns
+
+Reference ID    : 7F7F0101 ()
+Stratum         : 10
+Ref time (UTC)  : Sun Mar 03 22:12:19 2019
+System time     : 0.000000002 seconds slow of NTP time
+Last offset     : +0.000000000 seconds
+RMS offset      : 0.000000000 seconds
+Frequency       : 0.002 ppm slow
+Residual freq   : +0.000 ppm
+Skew            : 0.000 ppm
+Root delay      : 0.000000000 seconds
+Root dispersion : 0.000000000 seconds
+Update interval : 0.0 seconds
+Leap status     : Normal
+```
+
 ## __Informations__
 
-<!--
-- Ce TP a entièrement été réalisé sur [EVE-NG Community](https://www.eve-ng.net/) et la connexion `telnet` pour l'accès console aux routeurs et aux machines sont faites avec `"EVE-NG Intergration (Linux client side)"` utilisant le protocol `telnet` mais permetant aussi les protocols `vnc` et `rdp`.
-- La virtualisation des trois VMs Centos a été faite avec `QEMU` intégré à `EVE-NG`, (par défaut la version 2.4.0).
-- EVE-NG a été installé via son image iso sur une machine virtuelle hébergée `Proxmox`.
-- Le routeur servant pour le réseau NAT et un pfsense hébergé également sur le `Proxmox`.
-- Le serveur DNS est sur un réseau différent que celui attribué par le serveur DHCP mais le routage est bien éffectué entre les deux réseau via un tunnel IPsec.
-- Topology du réseau sur EVE-NG [ici](TP6/topology_eve.png).
-- Auteur: Antoine THYS B1B Ynov Informatique -->
+* Ce TP a entièrement été réalisé sur [EVE-NG Community](https://www.eve-ng.net/) et la connexion `telnet` pour l'accès console aux routeurs et aux machines sont faites avec `"EVE-NG Intergration (Linux client side)"` utilisant le protocol `telnet` mais permetant aussi les protocols `vnc` et `rdp`.
+* La virtualisation des trois VMs Centos a été faite avec `QEMU` intégré à `EVE-NG`, (par défaut la version 2.4.0).
+* EVE-NG a été installé via son image iso sur une machine virtuelle hébergée `Proxmox`.
+* Le routeur servant pour le réseau NAT et un pfsense hébergé également sur le `Proxmox`.
+* Le serveur DNS est sur un réseau différent que celui attribué par le serveur DHCP mais le routage est bien éffectué entre les deux réseau via un tunnel IPsec.
+* Topology du réseau sur EVE-NG [ici](TP6/topology_eve.png).
+* Auteur: Antoine THYS B1B Ynov Informatique
