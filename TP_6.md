@@ -864,7 +864,7 @@ mars 03 00:09:38 server2.tp6.b1 chronyd[2602]: Selected source 51.255.197.148
 ```bash
 [root@server2 ~]# chronyc sources && echo && chronyc tracking
 210 Number of sources = 1
-MS Name/IP address         Stratum Poll Reach LastRx Last sample               
+MS Name/IP address         Stratum Poll Reach LastRx Last sample
 ===============================================================================
 ^? server1                       0   6     0     -     +0ns[   +0ns] +/-    0ns
 
