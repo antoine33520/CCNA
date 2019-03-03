@@ -31,7 +31,7 @@
 
 ### Checklist IP Routeurs
 
-Pour r1.tp6.b1, r2.tp6.b1, r3.tp6.b1, r4.tp6.b1 et r5.tp6.b1 la définition des IPs statiques et des noms de domaine se fait avec la même procédure que pour le TP précédent en utilisant les valeurs rappelées dans la section [Tableau des Informations IP et OSPF](./TP_6.md#tableau-des-informations-ip-et-ospf).
+Pour r1.tp6.b1, r2.tp6.b1, r3.tp6.b1, r4.tp6.b1 et r5.tp6.b1 la définition des IPs statiques et des noms de domaine se fait avec la même procédure que pour le TP précédent en utilisant les valeurs rappelées dans la section [Tableau des Informations IP et OSPF](TP_6.md#tableau-des-informations-ip-et-ospf).
 
 ### Checklist VMs
 
@@ -41,7 +41,7 @@ Après avoir cloné la `VM patron` 4 fois pour correspondre aux demande du cahie
 * Définir les noms de domaine
 * Remplir le fichier `hosts`
 
-avec les valeurs de la section [Tableau des Informations IP et OSPF](./TP_6.md#tableau-des-informations-ip-et-ospf).
+avec les valeurs de la section [Tableau des Informations IP et OSPF](TP_6.md#tableau-des-informations-ip-et-ospf).
 
 ### Vérifier que tout ça fonctionne
 
@@ -335,7 +335,7 @@ Un exemple pour `r2.tp6.b1`
 ```cisco
 r2.tp6.b1#sh ip route
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
        N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
        E1 - OSPF external type 1, E2 - OSPF external type 2
        i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
@@ -370,7 +370,7 @@ Un exemple avec `server2.tp6.b1`
 [root@server2 ~]# curl antoinethys.com > curl
 ```
 
-[Fichier `curl`](./TP6/curl.md) avec formatage Markdown
+[Fichier `curl`](TP6/curl.md) avec formatage Markdown
 Cette commande renvoit le code `HTML` du site web hébergé au domaine `antoinethys.com`.
 
 On peut aussi faire un test depuis l'un des routeurs, `r4.tp6.b1` par exemple,\
@@ -380,7 +380,7 @@ Il est possible d'utiliser la commande `telnet` en passant une adresse IP/nom de
 r2.tp6.b1#telnet 192.168.10.5 80
 ```
 
-Le résultat de la [commande](./TP6/telnet.md)
+Le résultat de la [commande](TP6/telnet.md)
 
 ### 2. Un service d'infra
 
@@ -484,7 +484,265 @@ On fait un test avec `curl`,
 [root@server1 ~]# curl localhost > curl_local
 ```
 
-Ce qui donne ce [résultat](./TP6/curl_local.md).
+Ce qui donne ce [résultat](TP6/curl_local.md).
+
+##### 2.3.3 Depuis `client1.tp6.b1`
+
+Le fichier `host` ayant déjà était complété, il ne reste plus qu'à faire un test depuis `client1.tp6.b1` vers `server1.tp6.b1`.
+
+```bash
+[root@client1 ~]# curl server1.tp6.b1 > curl_nginx
+```
+
+Voilà ce que donne le [résultat](TP6/curl_nginx.md) de la commande.
+
+### 3. Serveur DHCP
+
+#### 3.1 Préparation de la machine
+
+##### 3.1.1 On renomme `client2.tp6.b1` en `dhcp.tp6.b1`
+
+```bash
+[root@client2 ~]# hostname dhcp.tp6.b1
+[root@client2 ~]# echo 'dhcp.tp6.b1' | sudo tee /etc/hostname
+dhcp.tp6.b1
+```
+
+##### 3.1.2 Modification de la configuration du serveur `DHCP`
+
+Il faut changer les adresses et plages IPs ainsi que d'ajouter le serveur DNS dans le [fichier de configuration](TP6/dhcpd.conf).
+
+##### 3.1.3 Installation du serveur `DHCP`
+
+```bash
+[root@client2 ~]# yum install -y dhcp
+```
+
+Ensuite on remplace le contenu du fichier `/etc/dhcp/dhcpd.conf` par celui de la partie [3.1.2](TP_6.md#312-modification-de-la-configuration-du-serveur-dhcp).
+
+```bash
+[root@client2 ~]# systemctl enable dhcpd && systemctl start dhcpd
+```
+
+Le serveur `DHCP` est bien démarré et en démarrage automatique,
+
+```bash
+[root@client2 ~]# systemctl status dhcpd
+● dhcpd.service - DHCPv4 Server Daemon
+   Loaded: loaded (/usr/lib/systemd/system/dhcpd.service; enabled; vendor preset: disabled)
+   Active: active (running) since sam. 2019-03-02 19:16:27 CET; 46s ago
+     Docs: man:dhcpd(8)
+           man:dhcpd.conf(5)
+ Main PID: 4108 (dhcpd)
+   Status: "Dispatching packets..."
+   CGroup: /system.slice/dhcpd.service
+           └─4108 /usr/sbin/dhcpd -f -cf /etc/dhcp/dhcpd.conf -user dhcpd -gr...
+
+mars 02 19:16:27 dhcp.tp6.b1 systemd[1]: Started DHCPv4 Server Daemon.
+mars 02 19:16:27 dhcp.tp6.b1 dhcpd[4108]: No subnet declaration for eth1 (no....
+mars 02 19:16:27 dhcp.tp6.b1 dhcpd[4108]: ** Ignoring requests on eth1.  If ...t
+mars 02 19:16:27 dhcp.tp6.b1 dhcpd[4108]:    you want, please write a subnet...n
+mars 02 19:16:27 dhcp.tp6.b1 dhcpd[4108]:    in your dhcpd.conf file for the...t
+mars 02 19:16:27 dhcp.tp6.b1 dhcpd[4108]:    to which interface eth1 is atta...*
+mars 02 19:16:27 dhcp.tp6.b1 dhcpd[4108]: nt
+mars 02 19:16:27 dhcp.tp6.b1 dhcpd[4108]: Listening on LPF/eth0/00:50:00:00:...4
+mars 02 19:16:27 dhcp.tp6.b1 dhcpd[4108]: Sending on   LPF/eth0/00:50:00:00:...4
+mars 02 19:16:27 dhcp.tp6.b1 dhcpd[4108]: Sending on   Socket/fallback/fallb...t
+Hint: Some lines were ellipsized, use -l to show in full.
+```
+
+#### 3.2 `client1.tp6.b1`
+
+##### 3.2.1 Configuration de la carte réseau
+
+```bash
+[root@client1 ~]# nano /etc/sysconfig/network-scripts/ifcfg-eth0
+
+
+NAME=eth0
+DEVICE=eth0
+
+BOOTPROTO=dhcp
+ONBOOT=yes
+
+
+[root@client1 ~]# ifdown eth0 && ifup eth0
+```
+
+##### 3.2.2 Test
+
+On va forcer le système à demander une adresse IP au serveur DHCP,
+
+```bash
+[root@client1 ~]# dhclient -v
+Internet Systems Consortium DHCP Client 4.2.5
+Copyright 2004-2013 Internet Systems Consortium.
+All rights reserved.
+For info, please visit https://www.isc.org/software/dhcp/
+
+Listening on LPF/eth1/00:50:00:00:09:01
+Sending on   LPF/eth1/00:50:00:00:09:01
+Listening on LPF/eth0/00:50:00:00:09:00
+Sending on   LPF/eth0/00:50:00:00:09:00
+Sending on   Socket/fallback
+DHCPDISCOVER on eth1 to 255.255.255.255 port 67 interval 8 (xid=0x8b282dc)
+DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 4 (xid=0x717860d8)
+DHCPREQUEST on eth0 to 255.255.255.255 port 67 (xid=0x717860d8)
+DHCPOFFER from 10.6.201.11
+DHCPACK from 10.6.201.11 (xid=0x717860d8)
+bound to 10.6.201.51 -- renewal in 250 seconds.
+```
+
+L'adresse IP attribuée à la machine `client1.tp6.b1` est donc `10.6.201.51`.
+
+### 4. Serveur DNS
+
+#### 4.1 Mise en place du serveur DNS
+
+Tout ceci doit être fait sur `server1.tp6.b1`, c'est cette machine qui hébergera le serveur DNS.
+
+##### 4.1.1 Installation du service
+
+```bash
+[root@client1 ~]# yum install -y bind*
+```
+
+#### 4.2 Configuration
+
+##### 4.2.2 Fichiers de configuration
+
+Les fichiers présents dans le dossier [dns](TP6/dns/) contiennent toute la configuration nécéssaire, la zone de recherche direct ainsi que la zone de recherche inversée, on doit juste y rajouter les lignes pour `server2.tp6.b1`.\
+
+* Change le contenu du fichier `/etc/named.conf` par celui contenu [ici](TP6/dns/named.conf).
+* Ensuite on ajoute les fichiers [forward.tp6.b1](TP6/dns/forward.tp6.b1) et [reverse.tp6.b1](TP6/dns/reverse.tp6.b1) dans le répertoire `/var/named/`.
+* Puis on change le propriétaire des fichiers:\
+  *(`named` étant le nom du service dns)*
+
+```bash
+chown named:named /var/named/*tp6.b1
+```
+
+##### 4.2.3 Ouverture des ports du pare-feu
+
+```bash
+[root@server1 ~]# firewall-cmd --add-port=53/tcp --permanent
+success
+[root@server1 ~]# firewall-cmd --add-port=53/udp --permanent
+success
+[root@server1 ~]# firewall-cmd --reload
+success
+```
+
+##### 4.2.3 Démarrage du service
+
+On active le démarrage automatique et on le lance.
+
+```bash
+[root@server1 ~]# systemctl enable named && systemctl start named
+```
+
+##### 4.2.4 Clients
+
+* Pour donner l'adresse IP du serveur DNS au `client2.tp6.b1` il faut modifier `option domain-name-servers 192.168.10.6;` en `option domain-name-servers 10.6.202.10;`.\
+* Il faut aussi changer l'adresse du serveur DNS dans le fichier `/etc/resolv.conf` pour toutes les autres machines.
+* Ensuite on vide le fichiers `/etc/hosts` sur chaque machine pour tester le fonctionnement du serveur DNS.
+
+##### 4.2.5 Routeurs
+
+Sur tout les routeurs il faut indiquer à nouveau le serveur DNS mais cette fois en précisant qu'il s'agit de `server1.tp6.b1`.
+
+```cisco
+r1.tp6.b1(config)# no ip name-server 192.168.10.6
+r1.tp6.b1(config)# ip name-server 10.6.202.10
+```
+
+#### 4.3 Test
+
+##### 4.3.1 Depuis `client2.tp6.b1`
+
+`client1.tp6.b1` utilise `server1.tp6.b1` comme DNS indiqué par le serveur DHCP.
+
+```bash
+[root@client1 ~]# dig server2.tp6.b1
+
+; <<>> DiG 9.9.4-RedHat-9.9.4-73.el7_6 <<>> server2.tp6.b1
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 52117
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;server2.tp6.b1.                        IN       A
+
+;; ANSWER SECTION:
+server2.tp6.b1.   604800        IN      A        10.6.202.11
+
+;; AUTHORITY SECTION:
+tp6.b1.           604800        IN      NS       server1.tp6.b1.
+
+;; ADDITIONAL SECTION:
+server1.tp6.b1.   604800        IN      A        10.6.202.10
+
+;; Query time: 138 msec
+;; SERVER: 10.6.202.10#53(10.6.202.10)
+;; WHEN: dim. mars 03 01:49:41 CET 2019
+;; MSG SIZE  rcvd: 97
+```
+
+En direct
+
+```bash
+[root@client1 ~]# dig -x 10.6.201.11
+
+; <<>> DiG 9.9.4-RedHat-9.9.4-73.el7_6 <<>> -x 10.6.201.11
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 41983
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;11.201.6.10.in-addr.arpa.	IN	PTR
+
+;; ANSWER SECTION:
+11.201.6.10.in-addr.arpa. 86400	IN	PTR	client2.tp6.b1.
+
+;; AUTHORITY SECTION:
+6.10.in-addr.arpa.	86400	IN	NS	server1.tp6.b1.
+
+;; ADDITIONAL SECTION:
+server1.tp6.b1.		604800	IN	A	10.6.202.10
+
+;; Query time: 160 msec
+;; SERVER: 10.6.202.10#53(10.6.202.10)
+;; WHEN: dim. mars 03 02:20:28 CET 2019
+;; MSG SIZE  rcvd: 119
+```
+
+En inversé
+
+##### 4.3.2 Depuis `r2.tp6.b1`
+
+```cisco
+r2.tp6.b1#ping client2.tp6.b1
+Translating "client2.tp6.b1"...domain server (10.6.202.10) [OK]
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.6.201.11, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 24/36/52 ms
+```
+
+### 5. NTP
+
+#### 5.1 Serveur NTP
+
+##### 5.1.1 Configuration
 
 ## __Informations__
 
@@ -494,5 +752,5 @@ Ce qui donne ce [résultat](./TP6/curl_local.md).
 - EVE-NG a été installé via son image iso sur une machine virtuelle hébergée `Proxmox`.
 - Le routeur servant pour le réseau NAT et un pfsense hébergé également sur le `Proxmox`.
 - Le serveur DNS est sur un réseau différent que celui attribué par le serveur DHCP mais le routage est bien éffectué entre les deux réseau via un tunnel IPsec.
-- Topology du réseau sur EVE-NG [ici](./TP6/topology_eve.png).
+- Topology du réseau sur EVE-NG [ici](TP6/topology_eve.png).
 - Auteur: Antoine THYS B1B Ynov Informatique -->
