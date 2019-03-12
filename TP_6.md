@@ -883,6 +883,40 @@ Update interval : 0.0 seconds
 Leap status     : Normal
 ```
 
+## Aller plus loin
+
+### 1. Vlans
+
+#### 1.1 "Matériel"
+Pour la suite du TP il est nécéssaire d'avoir des switchs cisco. Ici ce sont des switchs vIOS L2 cisco version 15.2.4.55e qui tournent sous qemu 2.4.0.
+
+#### 1.2 Topology
+![Topology avec Vlans](TP6/topology+vlan.png)
+
+- Vlan 201
+  - Nom: client-network
+  - Switch1:
+    - Port Gi0/1-3
+  - Switch2:
+    - Port Gi0/1-3
+- Vlan 202
+  - Nom: server
+  - Switch1:
+    - Port Gi1/1-3
+  - Switch2:
+    - Port Gi1/1-3
+- Trunk
+  - Switch1:
+    - Port Gi0/0
+  - Switch2:
+    - Port Gi1/0
+
+#### 1.3 
+Pour le Switch1:
+
+
+
+
 ## __Informations__
 
 * Ce TP a entièrement été réalisé sur [EVE-NG Community](https://www.eve-ng.net/) et la connexion `telnet` pour l'accès console aux routeurs et aux machines sont faites avec `"EVE-NG Intergration (Linux client side)"` utilisant le protocol `telnet` mais permetant aussi les protocols `vnc` et `rdp`.
