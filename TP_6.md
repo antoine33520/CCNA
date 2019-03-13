@@ -5,7 +5,7 @@
 ### Réseaux IP et aires OSPF
 
 | Réseaux          | `area 0` | `area 1` | `area 2` | Commentaire                |
-| ---------------- | -------- | -------- | -------- | -------------------------- |
+|------------------|----------|----------|----------|----------------------------|
 | `10.6.100.0/30`  | X        | -        | -        | Liaison entre `r1` et `r2` |
 | `10.6.100.4/30`  | X        | -        | -        | Liaison entre `r1` et `r4` |
 | `10.6.100.8/30`  | X        | -        | -        | Liaison entre `r2` et `r3` |
@@ -17,7 +17,7 @@
 ### Adressage IP de chacune des machines
 
 | Machines         | `10.6.100.0/30` | `10.6.100.4/30` | `10.6.100.8/30` | `10.6.100.12/30` | `10.6.101.0/30` | `10.6.201.0/24` | `10.6.202.0/24` |
-| ---------------- | --------------- | --------------- | --------------- | ---------------- | --------------- | --------------- | --------------- |
+|------------------|-----------------|-----------------|-----------------|------------------|-----------------|-----------------|-----------------|
 | `r1.tp6.b1`      | `10.6.100.1`    | `10.6.100.5`    | -               | -                | -               | -               | `10.6.202.254`  |
 | `r2.tp6.b1`      | `10.6.100.2`    | -               | `10.6.100.9`    | -                | -               | -               | -               |
 | `r3.tp6.b1`      | -               | -               | `10.6.100.10`   | `10.6.100.14`    | `10.6.101.1`    | -               | -               |
@@ -238,7 +238,7 @@ traceroute to server1 (10.6.202.10), 30 hops max, 60 byte packets
 Rappel des services pour chaque machine:
 
 | Service         | Qui porte le service ? | Pour qui ?                     | Pourquoi ?                                                                                                                                                                                                   |
-| --------------- | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|-----------------|------------------------|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **NAT**         | `r4.tp6.b1`            | tout le monde (routeurs & VMs) | Le NAT permet d'accéder à l'extérieur, il permet de sortir du LAN. Toutes les machines peuvent en avoir besoin dans notre petite infra                                                                       |
 | **Serveur Web** | `server1.tp6.b1`       | réseau client `10.6.201.0/24`  | Le serveur Web symbolise un service d'infra en interne. Dispo pour nos clients. Plus de détails dans la section dédiée.                                                                                      |
 | **DHCP**        | `client2.tp6.b1`       | réseau client `10.6.201.0/24`  | Le DHCP (qui permet d'attribuer des IPs automatiquement) c'est pour des clients. Pas pour des serveurs. Un serveur, on veut qu'il ait une IP fixe.                                                           |
@@ -888,34 +888,108 @@ Leap status     : Normal
 ### 1. Vlans
 
 #### 1.1 "Matériel"
+
 Pour la suite du TP il est nécéssaire d'avoir des switchs cisco. Ici ce sont des switchs vIOS L2 cisco version 15.2.4.55e qui tournent sous qemu 2.4.0.
 
 #### 1.2 Topology
+
 ![Topology avec Vlans](TP6/topology+vlan.png)
 
-- Vlan 201
-  - Nom: client-network
-  - Switch1:
-    - Port Gi0/1-3
-  - Switch2:
-    - Port Gi0/1-3
-- Vlan 202
-  - Nom: server
-  - Switch1:
-    - Port Gi1/1-3
-  - Switch2:
-    - Port Gi1/1-3
-- Trunk
-  - Switch1:
-    - Port Gi0/0
-  - Switch2:
-    - Port Gi1/0
+* Vlan 201
+  * Nom: client-network
+  * Switch1:
+    * Port Gi0/1-3
+  * Switch2:
+    * Port Gi0/1-3
+* Vlan 202
+  * Nom: server
+  * Switch1:
+    * Port Gi1/1-3
+  * Switch2:
+    * Port Gi1/1-3
+* Trunk
+  * Switch1:
+    * Port Gi0/0
+  * Switch2:
+    * Port Gi1/0
 
-#### 1.3 
-Pour le Switch1:
+#### 1.3 Manipulation sur les Switchs
+
+La configuration des Vlans est simple à petite échelle mais pour de plus grosse infrastructures celà devient vite assez long, la solition est d'utiliser `VTP` (VLAN Trunking Protocol) que j'ai moi même déjà dû utiliser sur d'autre types d'infrastructures dans le cadre de mes études. Ce TP sera fait en utilisant `VTP`
+
+**Pour le Switch2:**
+
+Par défaut tous les ports du switch sont sur le `Vlan 1`
+
+```cisco
+switch1#sh vl br
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Gi0/0, Gi0/1, Gi0/2, Gi0/3
+                                                Gi1/0, Gi1/1, Gi1/2, Gi1/3
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+```
+
+Maintennant avant de faire la configuration des Vlan on va commencer par la `VTP`
+
+```cisco
+switch1(config)#vtp domain tp6
+Changing VTP domain name from NULL to tp6
+switch1(config)#
+*Mar 13 21:05:23.938: %SW_VLAN-6-VTP_DOMAIN_NAME_CHG: VTP domain name changed to tp6.
+switch1(config)#vtp mode server vlan
+switch1(config)#vtp mode server mst
+Device mode already VTP Server for VLANS.
+switch1(config)#vtp pruning
+Pruning switched on
+switch1(config)#vtp password xxxxxxxx
+switch1(config)#vtp version 3
+switch1(config)#
+*Mar 13 21:06:23.082: %SW_VLAN-6-OLD_CONFIG_FILE_READ: Old version 2 VLAN configuration file detected and read OK.  Version 3
+    files will be written in the future.
+```
+
+"vtp prunning" permet la libération de la bande passante en évitant que les trams réseau aillent vers des switch qui n'utilise pas ce certains vlans, ce n'est pas obligatoire as reste une bonne pratique si l'infrastruction le supporte.
+*Même s'il s'agit uniquement d'un lab un mot de passe sécurisé est utilisé pour la configuration et n'est donc pas indiqué dans ce fichier de rendu*
+
+```cisco
+switch1#sh vtp st
+VTP Version capable             : 1 to 3
+VTP version running             : 3
+VTP Domain Name                 : tp6
+VTP Pruning Mode                : Enabled
+VTP Traps Generation            : Disabled
+Device ID                       : 5000.000b.0000
+
+Feature VLAN:
+--------------
+VTP Operating Mode                : Server
+Number of existing VLANs          : 5
+Number of existing extended VLANs : 0
+Maximum VLANs supported locally   : 4096
+Configuration Revision            : 0
+Primary ID                        : 0000.0000.0000
+Primary Description               :
+MD5 digest                        :
 
 
+Feature MST:
+--------------
+VTP Operating Mode                : Server
+Configuration Revision            : 0
+Primary ID                        : 0000.0000.0000
+Primary Description               :
+MD5 digest                        :
 
+
+Feature UNKNOWN:
+--------------
+VTP Operating Mode                : Transparent
+```
 
 ## __Informations__
 
