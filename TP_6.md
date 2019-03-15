@@ -963,7 +963,7 @@ switch2#
 *La version 3 de vtp n'est pas nécessaire pour ce type d'infrastructure, la version 1 serait plus adaptée mais cela permet plus de marge pour la réutilisation de ce lab.*
 
 ```cisco
-switch2#sh vtp status 
+switch2#sh vtp status
 VTP Version capable             : 1 to 3
 VTP version running             : 3
 VTP Domain Name                 : tp6
@@ -1095,16 +1095,44 @@ Il faut ajouter de nouvelles adresses IPs sur les routeurs correspondant au rés
 
 ##### 1.4.2 Nouvelle table IP
 
-| Routeur      |  `Vlan 201`  |  `Vlan 202`  |
-|--------------|--------------|--------------|
-| `r1.tp6.b1`  | 10.6.201.253 | 10.6.202.254 |
-| `r5.tp6.b1`  | 10.6.201.254 | 10.6.202.253 |
+| Routeur     | `Vlan 201`   | `Vlan 202`   |
+| ----------- | ------------ | ------------ |
+| `r1.tp6.b1` | 10.6.201.253 | 10.6.202.254 |
+| `r5.tp6.b1` | 10.6.201.254 | 10.6.202.253 |
 
 ##### 1.4.2 Router on the stick
 
 **Router1:**
 
+```cisco
+r1.tp6.b1(config)#int fa0/0
+r1.tp6.b1(config-if)#no ip add
+r1.tp6.b1(config-if)#shut
+r1.tp6.b1(config)#int f0/0.202
+r1.tp6.b1(config-subif)#encap dot1Q 202
+r1.tp6.b1(config-subif)#ip add 10.6.202.254 255.255.255.0
+r1.tp6.b1(config-subif)#no shut
+r1.tp6.b1(config-subif)#int f0/0.201
+r1.tp6.b1(config-subif)#encap dot1Q 201
+r1.tp6.b1(config-subif)#ip add 10.6.201.253 255.255.255.0
+r1.tp6.b1(config-subif)#no shut
+```
 
+**Router5:**
+
+```cisco
+r5.tp6.b1(config)#int fa0/0
+r5.tp6.b1(config-if)#no ip add
+r5.tp6.b1(config-if)#shut
+r5.tp6.b1(config)#int fa0/0.201
+r5.tp6.b1(config-subif)#encap dot1Q 201
+r5.tp6.b1(config-subif)#ip add 10.6.201.254 255.255.255.0
+r5.tp6.b1(config-subif)#no shut
+r5.tp6.b1(config-subif)#int fa0/0.202
+r5.tp6.b1(config-subif)#encap dot1Q 202
+r5.tp6.b1(config-subif)#ip add 10.6.202.253 255.255.255.0
+r5.tp6.b1(config-subif)#no shut
+```
 
 ## __Informations__
 
