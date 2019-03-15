@@ -5,7 +5,7 @@
 ### Réseaux IP et aires OSPF
 
 | Réseaux          | `area 0` | `area 1` | `area 2` | Commentaire                |
-| ---------------- | -------- | -------- | -------- | -------------------------- |
+|------------------|----------|----------|----------|----------------------------|
 | `10.6.100.0/30`  | X        | -        | -        | Liaison entre `r1` et `r2` |
 | `10.6.100.4/30`  | X        | -        | -        | Liaison entre `r1` et `r4` |
 | `10.6.100.8/30`  | X        | -        | -        | Liaison entre `r2` et `r3` |
@@ -17,7 +17,7 @@
 ### Adressage IP de chacune des machines
 
 | Machines         | `10.6.100.0/30` | `10.6.100.4/30` | `10.6.100.8/30` | `10.6.100.12/30` | `10.6.101.0/30` | `10.6.201.0/24` | `10.6.202.0/24` |
-| ---------------- | --------------- | --------------- | --------------- | ---------------- | --------------- | --------------- | --------------- |
+|------------------|-----------------|-----------------|-----------------|------------------|-----------------|-----------------|-----------------|
 | `r1.tp6.b1`      | `10.6.100.1`    | `10.6.100.5`    | -               | -                | -               | -               | `10.6.202.254`  |
 | `r2.tp6.b1`      | `10.6.100.2`    | -               | `10.6.100.9`    | -                | -               | -               | -               |
 | `r3.tp6.b1`      | -               | -               | `10.6.100.10`   | `10.6.100.14`    | `10.6.101.1`    | -               | -               |
@@ -238,7 +238,7 @@ traceroute to server1 (10.6.202.10), 30 hops max, 60 byte packets
 Rappel des services pour chaque machine:
 
 | Service         | Qui porte le service ? | Pour qui ?                     | Pourquoi ?                                                                                                                                                                                                   |
-| --------------- | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|-----------------|------------------------|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **NAT**         | `r4.tp6.b1`            | tout le monde (routeurs & VMs) | Le NAT permet d'accéder à l'extérieur, il permet de sortir du LAN. Toutes les machines peuvent en avoir besoin dans notre petite infra                                                                       |
 | **Serveur Web** | `server1.tp6.b1`       | réseau client `10.6.201.0/24`  | Le serveur Web symbolise un service d'infra en interne. Dispo pour nos clients. Plus de détails dans la section dédiée.                                                                                      |
 | **DHCP**        | `client2.tp6.b1`       | réseau client `10.6.201.0/24`  | Le DHCP (qui permet d'attribuer des IPs automatiquement) c'est pour des clients. Pas pour des serveurs. Un serveur, on veut qu'il ait une IP fixe.                                                           |
@@ -895,29 +895,17 @@ Pour la suite du TP il est nécéssaire d'avoir des switchs cisco. Ici ce sont d
 
 ![Topology avec Vlans](TP6/topology+vlan.png)
 
-* Vlan 201
-  * Nom: client-network
-  * Switch1:
-    * Port Gi0/1-3
-  * Switch2:
-    * Port Gi0/1-3
-* Vlan 202
-  * Nom: server
-  * Switch1:
-    * Port Gi1/1-3
-  * Switch2:
-    * Port Gi1/1-3
-* Trunk
-  * Switch1:
-    * Port Gi0/0
-  * Switch2:
-    * Port Gi1/0
+**Association des Vlans aux Interfaces:**
+| Switch  | Gi0/0 | Gi0/1 | Gi0/2 | Gi0/3 | Gi1/0 | Gi1/1 | Gi1/2 | Gi1/3 |
+|---------|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| Switch1 | TRUNk |  201  |  201  |  201  |   X   |  202  |  202  |  202  |
+| Switch2 |   X   |  201  |  201  |  201  | TRUNK |  202  |  202  |  202  |
 
 #### 1.3 Manipulation sur les Switchs
 
 La configuration des Vlans est simple à petite échelle mais pour de plus grosse infrastructures celà devient vite assez long, la solition est d'utiliser `VTP` (VLAN Trunking Protocol) que j'ai moi même déjà dû utiliser sur d'autre types d'infrastructures dans le cadre de mes études. Ce TP sera fait en utilisant `VTP`
 
-##### 1.3.1 Switch 2
+##### 1.3.1 Switch
 
 Par défaut tous les ports du switch sont sur le `Vlan 1`
 
@@ -1023,6 +1011,8 @@ switch2(config-if-range)#exit
 switch2(config)#int G1/0
 switch2(config-if)#switchport trunk encapsulation dot1q
 switch2(config-if)#switchport mode trunk
+switch2(config-if)#switchport trunk allowed vlan add 201
+switch2(config-if)#switchport trunk allowed vlan add 202
 ```
 
 **La configuration obtenue:**
@@ -1084,6 +1074,43 @@ switch1(config)#
 switch1(config)#int G0/0
 switch1(config-if)#switchport trunk encapsulation dot1q
 switch1(config-if)#switchport mode trunk
+switch2(config-if)#switchport trunk allowed vlan add 201
+switch2(config-if)#switchport trunk allowed vlan add 202
+```
+
+_édit: Après avoir cherché encore un moment et fais des tests il n'est visiblement pas possible de mettre en place du vtp entre les deux switchs, la configuration des vlans sera donc manuelle._
+
+```cisco
+switch1(config)#no vtp mode server vlan
+Device mode already VTP server for VLAN feature
+Resetting device to VTP SERVER mode.
+switch1(config)#no vtp mode server mst
+Resetting device to VTP Transparent for MST feature
+switch1(config)#no vtp version
+```
+
+```cisco
+switch1(config)#vlan 201
+switch1(config-vlan)#name clients
+switch1(config-vlan)#exit
+switch1(config)#vlan 202
+switch1(config-vlan)#name servers
+switch1(config-vlan)#exit
+```
+
+```cisco
+switch1(config)#int range Gi0/1-3
+switch1(config-if-range)#switchport mode access
+switch1(config-if-range)#switchport access vlan 201
+switch1(config-if-range)#int range Gi1/1-3
+switch1(config-if-range)#switchport mode access
+switch1(config-if-range)#switchport access vlan 202
+switch1(config-if-range)#exit
+switch1(config)#int G0/0
+switch1(config-if)#switchport trunk encapsulation dot1q
+switch1(config-if)#switchport mode trunk
+switch1(config-if)#switchport trunk allowed vlan add 201
+switch1(config-if)#switchport trunk allowed vlan add 202
 ```
 
 #### 1.4 Routeurs
@@ -1096,7 +1123,7 @@ Il faut ajouter de nouvelles adresses IPs sur les routeurs correspondant au rés
 ##### 1.4.2 Nouvelle table IP
 
 | Routeur     | `Vlan 201`   | `Vlan 202`   |
-| ----------- | ------------ | ------------ |
+|-------------|--------------|--------------|
 | `r1.tp6.b1` | 10.6.201.253 | 10.6.202.254 |
 | `r5.tp6.b1` | 10.6.201.254 | 10.6.202.253 |
 
@@ -1107,7 +1134,6 @@ Il faut ajouter de nouvelles adresses IPs sur les routeurs correspondant au rés
 ```cisco
 r1.tp6.b1(config)#int fa0/0
 r1.tp6.b1(config-if)#no ip add
-r1.tp6.b1(config-if)#shut
 r1.tp6.b1(config)#int f0/0.202
 r1.tp6.b1(config-subif)#encap dot1Q 202
 r1.tp6.b1(config-subif)#ip add 10.6.202.254 255.255.255.0
@@ -1123,7 +1149,6 @@ r1.tp6.b1(config-subif)#no shut
 ```cisco
 r5.tp6.b1(config)#int fa0/0
 r5.tp6.b1(config-if)#no ip add
-r5.tp6.b1(config-if)#shut
 r5.tp6.b1(config)#int fa0/0.201
 r5.tp6.b1(config-subif)#encap dot1Q 201
 r5.tp6.b1(config-subif)#ip add 10.6.201.254 255.255.255.0
@@ -1133,6 +1158,10 @@ r5.tp6.b1(config-subif)#encap dot1Q 202
 r5.tp6.b1(config-subif)#ip add 10.6.202.253 255.255.255.0
 r5.tp6.b1(config-subif)#no shut
 ```
+
+#### 1.5 Les VMs
+
+Maintenant il suffit de suivre la procédure habituelle pour donner aux deux nouvelles machines (Server3 et Client3) une adresse IP adaptée, `10.6.201.12` pour client3 et `10.6.202.12` pour server3.
 
 ## __Informations__
 
