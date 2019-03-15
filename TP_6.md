@@ -1091,7 +1091,7 @@ switch1(config-if)#switchport mode trunk
 ##### 1.4.1 Description
 
 Maintenant il faut configurer les routeurs, pour le celà il faut faire du "Router-on-a-stick".\
-Il faut ajouter de nouvelles adresses IPs sur les routeurs correspondant au réseau des Vlans auxquels ils sont reliés. 
+Il faut ajouter de nouvelles adresses IPs sur les routeurs correspondant au réseau des Vlans auxquels ils sont reliés.
 
 ##### 1.4.2 Nouvelle table IP
 
@@ -1099,6 +1099,12 @@ Il faut ajouter de nouvelles adresses IPs sur les routeurs correspondant au rés
 |--------------|--------------|--------------|
 | `r1.tp6.b1`  | 10.6.201.253 | 10.6.202.254 |
 | `r5.tp6.b1`  | 10.6.201.254 | 10.6.202.253 |
+
+##### 1.4.2 Router on the stick
+
+**Router1:**
+
+
 
 ## __Informations__
 
