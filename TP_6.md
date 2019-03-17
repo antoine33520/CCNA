@@ -1228,7 +1228,7 @@ Pour faire les choses proprement on peut rajouter `server3.tp6.b1` et `client3.t
 
 Ensuite:
 
-```cisco
+```bash
 [root@server1 ~]# systemctl restart named
 [root@server1 ~]# systemctl status named -l
 ● named.service - Berkeley Internet Name Domain (DNS)
@@ -1260,6 +1260,51 @@ Pour sécuriser la connexion par échange de clé ssh il faut générer les clé
 #### Génération
 
 On va créer en premier une paire de clé ssh sur client1.tp6.b1 pour l'exemple.
+
+```bash
+[root@client1 ~]# ssh-keygen -b 4096 -N password
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa):
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:alVnxtLh3FYlRCK02pt/IjnrF74q+zwMHQ+Du9H8pac root@client1.tp6.b1
+The key's randomart image is:
++---[RSA 4096]----+
+|         .o Oo+ +|
+|           B + o |
+|         .+ 0 o  |
+|        .=+= .   |
+|        E=.=     |
+|       o+ +oO .  |
+|      o  =o+ +   |
+|     .  o.*.* o  |
+|        .=*FE*   |
++----[SHA256]-----+
+```
+
+_J'ai quand même modifier le mot de passe dans la commande et changer la sortie de la commande ;-)_\
+
+#### Pour sele serveur
+
+Il faut maintenant indiqué à server1.tp6.b1 que l'utilisateur peut utiliser la clé précédemment générée pour se conecter en j'ajoutant dans le fichier authorized_keys.
+
+```bash
+[root@client1 ~]cat ~/.ssh/id_rsa.pub | ssh root@server1.tp6.b1 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+```
+
+#### Un peut plus de sécurité
+
+Maintenant on peut dire au serveur que l'utilisateur root notre seul utilisateur _(Je sais c'est très mal mais ça reste une VM)_ n'a pas le droit de se connecter en ssh en utilisant un mot de passe donc ce qui sous entend qu'il peut utiliser une clé ssh.\
+Dans le fichier `/etc/ssh/sshd_config ` il faut donc indiquer `Permit root login prohibit-password` et `PubkeyAuthentication yes` pour autoriser la connexion en utilisant l'échange de clé.
+
+#### Connexion
+
+Maintenant pour se connecter il faut indiqué dans la commande ssh qu'on veut utiliser la clé ssh précédemment crée.
+
+```bash
+[root@client1 ~]# ssh -i .ssh/id_rsa root@server1.tp6.b1
+```
 
 ## __Informations__
 
