@@ -13,3 +13,8 @@ $TTL 86400
 11.202     IN  PTR         server2.tp6.b1.
 10.201     IN  PTR         client1.tp6.b1.
 11.201     IN  PTR         client2.tp6.b1.
+
+; Après l'ajout des machines pour la mise en place de Vlans
+
+12.202     IN  PTR         server3.tp6.b1.
+12.201     IN  PTR         client3.tp6.b1.

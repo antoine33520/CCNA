@@ -5,7 +5,7 @@
 ### Réseaux IP et aires OSPF
 
 | Réseaux          | `area 0` | `area 1` | `area 2` | Commentaire                |
-|------------------|----------|----------|----------|----------------------------|
+| ---------------- | -------- | -------- | -------- | -------------------------- |
 | `10.6.100.0/30`  | X        | -        | -        | Liaison entre `r1` et `r2` |
 | `10.6.100.4/30`  | X        | -        | -        | Liaison entre `r1` et `r4` |
 | `10.6.100.8/30`  | X        | -        | -        | Liaison entre `r2` et `r3` |
@@ -17,7 +17,7 @@
 ### Adressage IP de chacune des machines
 
 | Machines         | `10.6.100.0/30` | `10.6.100.4/30` | `10.6.100.8/30` | `10.6.100.12/30` | `10.6.101.0/30` | `10.6.201.0/24` | `10.6.202.0/24` |
-|------------------|-----------------|-----------------|-----------------|------------------|-----------------|-----------------|-----------------|
+| ---------------- | --------------- | --------------- | --------------- | ---------------- | --------------- | --------------- | --------------- |
 | `r1.tp6.b1`      | `10.6.100.1`    | `10.6.100.5`    | -               | -                | -               | -               | `10.6.202.254`  |
 | `r2.tp6.b1`      | `10.6.100.2`    | -               | `10.6.100.9`    | -                | -               | -               | -               |
 | `r3.tp6.b1`      | -               | -               | `10.6.100.10`   | `10.6.100.14`    | `10.6.101.1`    | -               | -               |
@@ -238,7 +238,7 @@ traceroute to server1 (10.6.202.10), 30 hops max, 60 byte packets
 Rappel des services pour chaque machine:
 
 | Service         | Qui porte le service ? | Pour qui ?                     | Pourquoi ?                                                                                                                                                                                                   |
-|-----------------|------------------------|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------- | ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **NAT**         | `r4.tp6.b1`            | tout le monde (routeurs & VMs) | Le NAT permet d'accéder à l'extérieur, il permet de sortir du LAN. Toutes les machines peuvent en avoir besoin dans notre petite infra                                                                       |
 | **Serveur Web** | `server1.tp6.b1`       | réseau client `10.6.201.0/24`  | Le serveur Web symbolise un service d'infra en interne. Dispo pour nos clients. Plus de détails dans la section dédiée.                                                                                      |
 | **DHCP**        | `client2.tp6.b1`       | réseau client `10.6.201.0/24`  | Le DHCP (qui permet d'attribuer des IPs automatiquement) c'est pour des clients. Pas pour des serveurs. Un serveur, on veut qu'il ait une IP fixe.                                                           |
@@ -609,7 +609,7 @@ Tout ceci doit être fait sur `server1.tp6.b1`, c'est cette machine qui héberge
 
 #### 4.2 Configuration
 
-##### 4.2.2 Fichiers de configuration
+##### 4.2.1 Fichiers de configuration
 
 Les fichiers présents dans le dossier [dns](TP6/dns/) contiennent toute la configuration nécéssaire, la zone de recherche direct ainsi que la zone de recherche inversée, on doit juste y rajouter les lignes pour `server2.tp6.b1`.\
 
@@ -622,7 +622,7 @@ Les fichiers présents dans le dossier [dns](TP6/dns/) contiennent toute la conf
 chown named:named /var/named/*tp6.b1
 ```
 
-##### 4.2.3 Ouverture des ports du pare-feu
+##### 4.2.2 Ouverture des ports du pare-feu
 
 ```bash
 [root@server1 ~]# firewall-cmd --add-port=53/tcp --permanent
@@ -897,7 +897,7 @@ Pour la suite du TP il est nécéssaire d'avoir des switchs cisco. Ici ce sont d
 
 **Association des Vlans aux Interfaces:**
 | Switch  | Gi0/0 | Gi0/1 | Gi0/2 | Gi0/3 | Gi1/0 | Gi1/1 | Gi1/2 | Gi1/3 |
-|---------|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| ------- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | Switch1 | TRUNk |  201  |  201  |  201  |   X   |  202  |  202  |  202  |
 | Switch2 |   X   |  201  |  201  |  201  | TRUNK |  202  |  202  |  202  |
 
@@ -1123,7 +1123,7 @@ Il faut ajouter de nouvelles adresses IPs sur les routeurs correspondant au rés
 ##### 1.4.2 Nouvelle table IP
 
 | Routeur     | `Vlan 201`   | `Vlan 202`   |
-|-------------|--------------|--------------|
+| ----------- | ------------ | ------------ |
 | `r1.tp6.b1` | 10.6.201.253 | 10.6.202.254 |
 | `r5.tp6.b1` | 10.6.201.254 | 10.6.202.253 |
 
@@ -1147,7 +1147,7 @@ r1.tp6.b1(config-subif)#no shut
 **Router5:**
 
 ```cisco
-r5.tp6.b1(config)#int fa0/0
+r5.tp6.b1(config)#int fa0
 r5.tp6.b1(config-if)#no ip add
 r5.tp6.b1(config)#int fa0/0.201
 r5.tp6.b1(config-subif)#encap dot1Q 201
@@ -1161,7 +1161,80 @@ r5.tp6.b1(config-subif)#no shut
 
 #### 1.5 Les VMs
 
-Maintenant il suffit de suivre la procédure habituelle pour donner aux deux nouvelles machines (Server3 et Client3) une adresse IP adaptée, `10.6.201.12` pour client3 et `10.6.202.12` pour server3.
+Maintenant il suffit de suivre la procédure habituelle pour donner aux deux nouvelles machines (Server3 et Client3) une adresse IP adaptée et une passerelle, `10.6.201.12` pour client3 avec `10.6.201.253` comme passerelle et `10.6.202.12` pour server3 avec comme passerelle `10.6.202.253`.
+
+#### 1.6 OSPF Vlans
+
+_Après 2 jours j'ai enfin compris pourquoi je n'avais pas routage, il faut configurer OSPF sur `r1.tp6.b1` et `r5.tp6.b1`._
+Pour ajouter nos routes OSPF il faut se référer à la partie [`Configuration de OSPF`](TP_6.md#configuration-de-ospf).
+
+##### 1.6.1 `r1.tp6.b1`
+
+```cisco
+r1.tp6.b1(config)#router ospf 1
+r1.tp6.b1(config-router)#network 10.6.201.0 0.0.0.255 area 2
+```
+
+##### 1.6.2 `r5.tp6.b1`
+
+```cisco
+r5.tp6.b1(config)#router ospf 1
+r5.tp6.b1(config-router)#network 10.6.202.0 0.0.0.255 area 1
+```
+
+#### 1.7 Un petit test rapide
+
+```cisco
+[root@server1 ~]# ping 10.6.201.12 -c 2 && echo "" && ping 10.6.202.12 -c 2
+PING 10.6.201.12 (10.6.201.12) 56(84) bytes of data.
+64 bytes from 10.6.201.12: icmp_seq=1 ttl=63 time=30.8 ms
+64 bytes from 10.6.201.12: icmp_seq=2 ttl=63 time=17.7 ms
+
+--- 10.6.201.12 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1002ms
+rtt min/avg/max/mdev = 17.756/24.318/30.880/6.562 ms
+
+PING 10.6.202.12 (10.6.202.12) 56(84) bytes of data.
+From 10.6.202.10 icmp_seq=1 Destination Host Unreachable
+From 10.6.202.10 icmp_seq=2 Destination Host Unreachable
+
+--- 10.6.202.12 ping statistics ---
+2 packets transmitted, 0 received, +2 errors, 100% packet loss, time 999ms
+pipe 2
+```
+
+Là on peut voir que `server1.tp6.b1` peut communiquer à la fois avec `client3.tp6.b1` qui est dans la même aire mais dans un Vlan différent et avec `server3.tp6.b1` qui lui est dans le même Vlan mais pas la même aire donc le routage interVlan fonctionne.
+
+#### Suppléments
+
+Pour faire les choses proprement on peut rajouter `server3.tp6.b1` et `client3.tp6.b1` dans les [fichiers de configuration du serveur DNS](TP6\dns) en suivant la [procédure](TP_6.md#421-fichiers-de-configuration) de configuration du serveur DNS faite précédement.
+
+Ensuite:
+
+```cisco
+[root@server1 ~]# systemctl restart named
+[root@server1 ~]# systemctl status named -l
+● named.service - Berkeley Internet Name Domain (DNS)
+   Loaded: loaded (/usr/lib/systemd/system/named.service; enabled; vendor preset: disabled)
+   Active: active (running) since dim. 2019-03-17 00:58:44 CET; 5s ago
+  Process: 6199 ExecStop=/bin/sh -c /usr/sbin/rndc stop > /dev/null 2>&1 || /bin/kill -TERM $MAINPID (code=exited, status=0/SUCCESS)
+  Process: 6228 ExecStart=/usr/sbin/named -u named -c ${NAMEDCONF} $OPTIONS (code=exited, status=0/SUCCESS)
+  Process: 6226 ExecStartPre=/bin/bash -c if [ ! "$DISABLE_ZONE_CHECKING" == "yes" ]; then /usr/sbin/named-checkconf -z "$NAMEDCONF"; else echo "Checking of zone files is disabled"; fi (code=exited, status=0/SUCCESS)
+ Main PID: 6230 (named)
+   CGroup: /system.slice/named.service
+           └─6230 /usr/sbin/named -u named -c /etc/named.conf
+
+mars 17 00:58:44 server1.tp6.b1 named[6230]: zone 0.in-addr.arpa/IN: loaded serial 0
+mars 17 00:58:44 server1.tp6.b1 named[6230]: zone 6.10.in-addr.arpa/IN: loaded serial 2011071001
+mars 17 00:58:44 server1.tp6.b1 named[6230]: zone 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa/IN: loaded serial 0
+mars 17 00:58:44 server1.tp6.b1 named[6230]: zone 1.0.0.127.in-addr.arpa/IN: loaded serial 0
+mars 17 00:58:44 server1.tp6.b1 named[6230]: zone tp6.b1/IN: loaded serial 2014030801
+mars 17 00:58:44 server1.tp6.b1 named[6230]: zone localhost/IN: loaded serial 0
+mars 17 00:58:44 server1.tp6.b1 named[6230]: zone localhost.localdomain/IN: loaded serial 0
+mars 17 00:58:44 server1.tp6.b1 named[6230]: all zones loaded
+mars 17 00:58:44 server1.tp6.b1 named[6230]: running
+mars 17 00:58:44 server1.tp6.b1 systemd[1]: Started Berkeley Internet Name Domain (DNS).
+```
 
 ## __Informations__
 
