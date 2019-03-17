@@ -1257,6 +1257,10 @@ mars 17 00:58:44 server1.tp6.b1 systemd[1]: Started Berkeley Internet Name Domai
 
 Pour sécuriser la connexion par échange de clé ssh il faut générer les clés sur la machine locale et indiqué à la machine distante que la clé publique de la machine cliente est autorisé comme méthode d'authentification pour établir la connexion ssh.
 
+#### Génération
+
+On va créer en premier une paire de clé ssh sur client1.tp6.b1 pour l'exemple.
+
 ## __Informations__
 
 * Ce TP a entièrement été réalisé sur [EVE-NG Community](https://www.eve-ng.net/) et la connexion `telnet` pour l'accès console aux routeurs et aux machines sont faites avec `"EVE-NG Intergration (Linux client side)"` utilisant le protocol `telnet` mais permetant aussi les protocols `vnc` et `rdp`.
