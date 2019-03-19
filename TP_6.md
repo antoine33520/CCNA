@@ -804,7 +804,7 @@ mars 02 23:54:19 server1.tp6.b1 chronyd[2591]: Selected source 95.81.173.155
 mars 03 04:21:40 server1.tp6.b1 chronyd[2591]: Selected source 91.121.96.146
 mars 03 10:41:30 server1.tp6.b1 chronyd[2591]: Selected source 94.23.37.34
 mars 03 17:18:16 server1.tp6.b1 chronyd[2591]: Selected source 91.121.96.146
-mars 03 21:06:13 server1.tp6.b1 chronyd[2591]: Selected source 94.23.37.34
+mars 03 21:06:13 server1.tp6.b1 chronyd[2591]: cted source 94.23.37.34
 ```
 
 ##### 5.1.4 Vérifier l'état de la synchronisation NTP
@@ -1253,6 +1253,12 @@ mars 17 00:58:44 server1.tp6.b1 named[6230]: running
 mars 17 00:58:44 server1.tp6.b1 systemd[1]: Started Berkeley Internet Name Domain (DNS).
 ```
 
+#### Conclusion Vlans
+
+*__Léo après notre discussion j'ai enfin pu comprendre où était mon "problème" de routage__*\
+L'infrastructure mise en place n'est pas utilisable en utilisant uniquement `OSPF`, par simple logique il n'est en effet pas possible d'indiquer à un équipement deux routes différentes pour le même réseau en utilisant cette solution, *(erreur à ne pas reproduire)*.\
+Maintenant pour un rendu plus propre comme indiqué en conclusion la topologie actuelle va être réutilisée pour une version définitive de l'infrastructure, disponible [ici](Infra_finale.md).
+
 ### SSH KEY
 
 Pour sécuriser la connexion par échange de clé ssh il faut générer les clés sur la machine locale et indiqué à la machine distante que la clé publique de la machine cliente est autorisé comme méthode d'authentification pour établir la connexion ssh.
@@ -1285,7 +1291,7 @@ The key's randomart image is:
 
 _J'ai quand même modifier le mot de passe dans la commande et changer la sortie de la commande ;-)_\
 
-#### Pour sele serveur
+#### Poule serveur
 
 Il faut maintenant indiqué à server1.tp6.b1 que l'utilisateur peut utiliser la clé précédemment générée pour se conecter en j'ajoutant dans le fichier authorized_keys.
 
@@ -1296,7 +1302,7 @@ Il faut maintenant indiqué à server1.tp6.b1 que l'utilisateur peut utiliser la
 #### Un peut plus de sécurité
 
 Maintenant on peut dire au serveur que l'utilisateur root notre seul utilisateur _(Je sais c'est très mal mais ça reste une VM)_ n'a pas le droit de se connecter en ssh en utilisant un mot de passe donc ce qui sous entend qu'il peut utiliser une clé ssh.\
-Dans le fichier `/etc/ssh/sshd_config ` il faut donc indiquer `Permit root login prohibit-password` et `PubkeyAuthentication yes` pour autoriser la connexion en utilisant l'échange de clé.
+Dans le fichier `/etc/ssh/sshd_config` il faut donc indiquer `Permit root login prohibit-password` et `PubkeyAuthentication yes` pour autoriser la connexion en utilisant l'échange de clé.
 
 #### Connexion
 

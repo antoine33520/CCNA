@@ -5,4 +5,4 @@ Les bases de l'infrastructure seront celles du [TP 6](TP_6.md) et la configurati
 
 ## GNS3
 
-Après une bonne configuration personnalisée de gns3 on commence l'ajout et le placement du matériel
+Après une bonne configuration personnalisée de gns3 on commence l'ajout et le placement du matériel.
