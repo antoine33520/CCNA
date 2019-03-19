@@ -1306,6 +1306,10 @@ Maintenant pour se connecter il faut indiqué dans la commande ssh qu'on veut ut
 [root@client1 ~]# ssh -i .ssh/id_rsa root@server1.tp6.b1
 ```
 
+## Conclusion
+
+Maintenant que je suis totalement lancé sur les bonus afin de monter une bonne infrastructure je vais changer d'approche et remettre toute la configuration en réutilisant les bases de ce TP, cette mise en place sera longue mais fera l'objet d'un suivi sur le fichier [infra_finale](Infra_finale.md).
+
 ## __Informations__
 
 * Ce TP a entièrement été réalisé sur [EVE-NG Community](https://www.eve-ng.net/) et la connexion `telnet` pour l'accès console aux routeurs et aux machines sont faites avec `"EVE-NG Intergration (Linux client side)"` utilisant le protocol `telnet` mais permetant aussi les protocols `vnc` et `rdp`.
